@@ -319,6 +319,10 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
 {
+  //this is also necessary to update the context on MSW 
+#ifdef __WXMSW__
+  wxWindow::OnSize(event); //wxNO_FULL_REPAINT_ON_RESIZE ?? 
+#endif
   int w, h;
   GetClientSize(&w, &h);
   UpdateSize(w, h);
