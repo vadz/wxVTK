@@ -18,13 +18,15 @@
 
 #include "wxVTKRenderWindowInteractor.h"
 
+#ifdef _MSC_VER
+#  pragma warning(disable : 4355)
+#endif
+
 #if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
 #  include <vtkCommand.h>
 #else
 #  include <vtkInteractorStyle.h>
 #endif //(VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
-
-#include "wx/dcclient.h"
 
 //Keep this for compatibilty reason, this was introduced in wxGTK 2.4.0
 #if (!wxCHECK_VERSION(2, 4, 0))
@@ -34,10 +36,6 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
          win = win->GetParent();
     return win;
 }
-#endif
-
-#ifdef _MSC_VER
-#  pragma warning(disable : 4355)
 #endif
 
 IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, WX_BASE_CLASS)
@@ -56,24 +54,25 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, WX_BASE_CLASS)
   EVT_LEFT_UP     (wxVTKRenderWindowInteractor::OnButtonUp)
   EVT_MIDDLE_UP   (wxVTKRenderWindowInteractor::OnButtonUp)
   EVT_RIGHT_UP    (wxVTKRenderWindowInteractor::OnButtonUp)
-
+#if !(VTK_MAJOR_VERSION == 3 && VTK_MINOR_VERSION == 1)
   EVT_ENTER_WINDOW(wxVTKRenderWindowInteractor::OnEnter)
   EVT_LEAVE_WINDOW(wxVTKRenderWindowInteractor::OnLeave)
-
   EVT_KEY_DOWN    (wxVTKRenderWindowInteractor::OnKeyDown)
   EVT_KEY_UP      (wxVTKRenderWindowInteractor::OnKeyUp)
+#endif
   EVT_TIMER       (ID_wxVTKRenderWindowInteractor_TIMER, wxVTKRenderWindowInteractor::OnTimer)
   EVT_SIZE        (wxVTKRenderWindowInteractor::OnSize)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : WX_BASE_CLASS(), 
-  vtkRenderWindowInteractor(), timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
+  vtkRenderWindowInteractor(), timer(this, ID_wxVTKRenderWindowInteractor_TIMER), ActiveButton(wxEVT_NULL),
+  RenderAllowed(0), Stereo(0), Handle(0), Created(true), RenderWhenDisabled(1), UseCaptureMouse(0)
 {
-  Created = true;
-  RenderWhenDisabled = 1;
-  UseCaptureMouse = Handle = Stereo = 0;
-  ActiveButton  = wxEVT_NULL;
+//  Created = true;
+//  RenderWhenDisabled = 1;
+//  UseCaptureMouse = Handle = Stereo = 0;
+//  ActiveButton  = wxEVT_NULL;
 
   //The following is right...
   //this was the only way I found to deal with smart pointer
@@ -86,12 +85,13 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : WX_BASE_CLASS(),
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent, wxWindowID id, 
           const wxPoint &pos, const wxSize &size, long style, const wxString &name)
-  : WX_BASE_CLASS(parent, id, pos, size, style, name), vtkRenderWindowInteractor(), timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
+  : WX_BASE_CLASS(parent, id, pos, size, style, name), vtkRenderWindowInteractor(), timer(this, ID_wxVTKRenderWindowInteractor_TIMER),
+  ActiveButton(wxEVT_NULL), RenderAllowed(0), Stereo(0), Handle(0), Created(true), RenderWhenDisabled(1), UseCaptureMouse(0)
 {
-  Created = true;
-  RenderWhenDisabled = 1;
-  UseCaptureMouse = Handle = Stereo = 0;
-  ActiveButton  = wxEVT_NULL;
+//  Created = true;
+//  RenderWhenDisabled = 1;
+//  UseCaptureMouse = Handle = Stereo = 0;
+//  ActiveButton  = wxEVT_NULL;
 
   //The following is right...
   //this was the only way I found to deal with smart pointer
@@ -99,7 +99,16 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent, wxWin
   vtkRenderWindow *rwtemp = vtkRenderWindow::New();
   SetRenderWindow(rwtemp);
   if(rwtemp) rwtemp->Delete();
-  
+
+ 
+}
+//---------------------------------------------------------------------------
+wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
+{
+  if (this->RenderWindow != NULL)
+    {
+    this->RenderWindow->UnRegister(this);
+    }
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
@@ -161,7 +170,7 @@ void wxVTKRenderWindowInteractor::UpdateSize(int x, int y)
   }
 }
 //---------------------------------------------------------------------------
-int wxVTKRenderWindowInteractor::CreateTimer(int timertype)
+int wxVTKRenderWindowInteractor::CreateTimer(int WXUNUSED(timertype))
 {
   // it's a one shot timer
   if (!timer.Start(10, TRUE))
@@ -205,7 +214,7 @@ long wxVTKRenderWindowInteractor::GetHandle()
     if (m_wxwindow) {
 #ifdef __WXGTK20__
         handle_tmp = (long) GDK_WINDOW_XWINDOW(GTK_PIZZA(
-          win->m_wxwindow)->bin_window);
+          m_wxwindow)->bin_window);
 #else
         GdkWindowPrivate* bwin = reinterpret_cast<GdkWindowPrivate*>(
           GTK_PIZZA(m_wxwindow)->bin_window);
@@ -240,10 +249,13 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
   event.Skip(false);
 }
 //---------------------------------------------------------------------------
-void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
+void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &WXUNUSED(event))
 {
-  // this is also necessary to update the context on some platforms
-//  WX_BASE_CLASS::OnSize(event);
+  // this is also necessary to update the context on MSW for a change !
+# ifdef __WXMSW__
+  WX_BASE_CLASS::OnSize(event);
+  //wxNO_FULL_REPAINT_ON_RESIZE ??
+#endif
 
   int w, h;
   GetClientSize(&w, &h);
@@ -278,6 +290,7 @@ void wxVTKRenderWindowInteractor::OnMotion(wxMouseEvent &event)
 #endif
 }
 //---------------------------------------------------------------------------
+#if !(VTK_MAJOR_VERSION == 3 && VTK_MINOR_VERSION == 1)
 void wxVTKRenderWindowInteractor::OnEnter(wxMouseEvent &event)
 {
   if (!Enabled) 
@@ -317,6 +330,62 @@ void wxVTKRenderWindowInteractor::OnLeave(wxMouseEvent &event)
       event.GetX(), Size[1] - event.GetY() - 1);  
 #endif
 }
+//---------------------------------------------------------------------------
+void wxVTKRenderWindowInteractor::OnKeyDown(wxKeyEvent &event)
+{
+  if (!Enabled) 
+    {
+    return;
+    }
+
+#if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
+    // new style
+  int keycode = event.GetKeyCode();
+  char key = '\0';
+  if (keycode < 256)
+  {
+    // TODO: Unicode in non-Unicode mode ??
+    key = (char)keycode;
+  }
+
+  SetEventInformationFlipY(event.GetX(), event.GetY(), 
+    event.ControlDown(), event.ShiftDown(), key, 0, NULL);
+
+  InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+  InvokeEvent(vtkCommand::CharEvent, NULL);
+#else
+  InteractorStyle->OnKeyDown(event.ControlDown(), event.ShiftDown(), 
+    event.GetKeyCode(), 1);
+#endif
+  event.Skip();
+}
+//---------------------------------------------------------------------------
+void wxVTKRenderWindowInteractor::OnKeyUp(wxKeyEvent &event)
+{
+  if (!Enabled) 
+    {
+    return;
+    }
+
+#if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
+    // new style
+  int keycode = event.GetKeyCode();
+  char key = '\0';
+  if (keycode < 256)
+  {
+    // TODO: Unicode in non-Unicode mode ??
+    key = (char)keycode;
+  }
+
+  SetEventInformationFlipY(event.GetX(), event.GetY(), 
+    event.ControlDown(), event.ShiftDown(), key, 0, NULL);
+  InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+#else
+  InteractorStyle->OnKeyUp(event.ControlDown(), event.ShiftDown(), event.GetKeyCode(), 1);
+#endif
+  event.Skip();
+}
+#endif //!(VTK_MAJOR_VERSION == 3 && VTK_MINOR_VERSION == 1)
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::OnButtonDown(wxMouseEvent &event)
 {
@@ -428,61 +497,6 @@ void wxVTKRenderWindowInteractor::OnButtonUp(wxMouseEvent &event)
     ReleaseMouse();
   }
   ActiveButton = wxEVT_NULL;
-}
-//---------------------------------------------------------------------------
-void wxVTKRenderWindowInteractor::OnKeyDown(wxKeyEvent &event)
-{
-  if (!Enabled) 
-    {
-    return;
-    }
-
-#if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
-    // new style
-  int keycode = event.GetKeyCode();
-  char key = '\0';
-  if (keycode < 256)
-  {
-    // TODO: Unicode in non-Unicode mode ??
-    key = (char)keycode;
-  }
-
-  SetEventInformationFlipY(event.GetX(), event.GetY(), 
-    event.ControlDown(), event.ShiftDown(), key, 0, NULL);
-
-  InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-  InvokeEvent(vtkCommand::CharEvent, NULL);
-#else
-  InteractorStyle->OnKeyDown(event.ControlDown(), event.ShiftDown(), 
-    event.GetKeyCode(), 1);
-#endif
-  event.Skip();
-}
-//---------------------------------------------------------------------------
-void wxVTKRenderWindowInteractor::OnKeyUp(wxKeyEvent &event)
-{
-  if (!Enabled) 
-    {
-    return;
-    }
-
-#if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
-    // new style
-  int keycode = event.GetKeyCode();
-  char key = '\0';
-  if (keycode < 256)
-  {
-    // TODO: Unicode in non-Unicode mode ??
-    key = (char)keycode;
-  }
-
-  SetEventInformationFlipY(event.GetX(), event.GetY(), 
-    event.ControlDown(), event.ShiftDown(), key, 0, NULL);
-  InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
-#else
-  InteractorStyle->OnKeyUp(event.ControlDown(), event.ShiftDown(), event.GetKeyCode(), 1);
-#endif
-  event.Skip();
 }
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::Render()
