@@ -228,9 +228,13 @@ long wxVTKRenderWindowInteractor::GetHandle()
   {
     handle_tmp = (long)toplevel->GetNSWindow();
   }
+//According to David Elliot I can use:
+// #include <objc/objc.h>
+// handle_tmp = (long)objc_msgSend(GetNSView(), "window");
 #endif //VTK_USE_COCOA
 #ifdef VTK_USE_CARBON
     handle_tmp = (long)this->MacGetRootWindow();
+//this function might have become in wx 2.5.x : MacGetTopLevelWindowRef()
 #endif //VTK_USE_CARBON
 #endif //__WXMAC__
 
