@@ -40,6 +40,10 @@
 #include "vtkImageReslice.h"
 
 #include "vtkImageData.h"
+#ifndef vtkFloatingPointType
+#define vtkFloatingPointType float
+#endif
+
 
 // the application icon
 #if defined(__WXGTK__) || defined(__WXMOTIF__)
@@ -265,7 +269,7 @@ void MyFrame::ConfigureVTK()
     planeWidgetZ->DisplayTextOn();
     planeWidgetZ->On();
 
-  float wl[2];
+  vtkFloatingPointType wl[2];
   planeWidgetZ->GetWindowLevel(wl);
 
   // Add a 2D image to test the GetReslice method
