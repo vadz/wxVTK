@@ -19,9 +19,9 @@
 #include "wxVTKRenderWindowInteractor.h"
 
 #if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
-#  include <vtkCommand.h>
+#  include "vtkCommand.h"
 #else
-#  include <vtkInteractorStyle.h>
+#  include "vtkInteractorStyle.h"
 #endif //(VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
 
 //Keep this for compatibilty reason, this was introduced in wxGTK 2.4.0
@@ -33,6 +33,22 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
     return win;
 }
 #endif
+
+// To access objc calls on cocoa
+#if defined(__WXMAC__) && defined(VTK_USE_COCOA)
+#  include <objc/objc.h>
+#endif //defined(__WXMAC__) && defined(VTK_USE_COCOA)
+
+//For more info on this class please go to:
+//http://wxvtk.sf.net
+//This hack is for some buggy wxGTK version:
+#if wxCHECK_VERSION(2, 3, 2) && !wxCHECK_VERSION(2, 4, 1) && defined(__WXGTK__)
+#  define WX_USE_X_CAPTURE 0
+#else
+#  define WX_USE_X_CAPTURE 1
+#endif
+
+#define ID_wxVTKRenderWindowInteractor_TIMER 1001
 
 #ifdef __WXGTK__
 IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxGLCanvas)
@@ -71,7 +87,7 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
   EVT_TIMER       (ID_wxVTKRenderWindowInteractor_TIMER, wxVTKRenderWindowInteractor::OnTimer)
   EVT_SIZE        (wxVTKRenderWindowInteractor::OnSize)
 END_EVENT_TABLE()
-  
+
 //---------------------------------------------------------------------------
 #ifdef __WXGTK__
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas()
@@ -222,19 +238,26 @@ long wxVTKRenderWindowInteractor::GetHandle()
 
 #ifdef __WXMAC__
 #ifdef VTK_USE_COCOA
+#if 0
+   // I keep the following just in case...
   wxTopLevelWindow* toplevel = dynamic_cast<wxTopLevelWindow*>(
     wxGetTopLevelParent( this ) ) ;
   if (toplevel != NULL )
   {
     handle_tmp = (long)toplevel->GetNSWindow();
   }
+#else
 //According to David Elliot I can use:
-// #include <objc/objc.h>
-// handle_tmp = (long)objc_msgSend(GetNSView(), "window");
+   handle_tmp = (long)objc_msgSend(GetNSView(), "window");
+#endif
 #endif //VTK_USE_COCOA
 #ifdef VTK_USE_CARBON
+#if wxCHECK_VERSION(2, 5, 2)
+   //this function became in wx 2.5.2 : MacGetTopLevelWindowRef()
+    handle_tmp = (long)this->MacGetTopLevelWindowRef();
+#else
     handle_tmp = (long)this->MacGetRootWindow();
-//this function might have become in wx 2.5.x : MacGetTopLevelWindowRef()
+#endif //wxCHECK_VERSION(2, 5, 2)
 #endif //VTK_USE_CARBON
 #endif //__WXMAC__
 
@@ -600,6 +623,3 @@ void wxVTKRenderWindowInteractor::SetStereo(int capable)
     Modified();
     }
 }
-
-#undef ID_wxVTKRenderWindowInteractor_TIMER
-#undef WX_USE_X_CAPTURE

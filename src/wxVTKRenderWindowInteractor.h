@@ -41,7 +41,7 @@
 #include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
-#pragma hdrstop
+#  pragma hdrstop
 #endif
 
 #ifndef WX_PRECOMP
@@ -50,23 +50,13 @@
 
 #include <wx/timer.h>
 #include <wx/dcclient.h>
-#define ID_wxVTKRenderWindowInteractor_TIMER 1001
 
 // vtk includes
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 //This is needed for vtk 3.1 :
 #ifndef VTK_MAJOR_VERSION
-#include "vtkVersion.h"
-#endif
-
-//For more info on this class please go to:
-//http://wxvtk.sf.net
-//This hack is for some buggy wxGTK version:
-#if wxCHECK_VERSION(2, 3, 2) && !wxCHECK_VERSION(2, 4, 1) && defined(__WXGTK__)
-#  define WX_USE_X_CAPTURE 0
-#else
-#  define WX_USE_X_CAPTURE 1
+#  include "vtkVersion.h"
 #endif
 
 #ifdef __WXGTK__
