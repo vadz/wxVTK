@@ -11,6 +11,9 @@
     #include "wx/wx.h"
 #endif
 
+    #include "wx/laywin.h"
+
+//#include "wxVTKWindow.h"
 #include "wxVTKRenderWindowInteractor.h"
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
@@ -18,7 +21,6 @@
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkPolyDataReader.h"
 
 // the application icon
 #if defined(__WXGTK__) || defined(__WXMOTIF__)
@@ -49,6 +51,8 @@ public:
     // event handlers (these functions should _not_ be virtual)
     void OnQuit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
+    void OnSize(wxSizeEvent& event);
+    void OnSashDrag(wxSashEvent& event);
 
 protected:
     void ConstructVTK();
@@ -56,11 +60,16 @@ protected:
     void DestroyVTK();
 
 private:
-  wxVTKRenderWindowInteractor *m_pVTKWindow;
+    wxSashLayoutWindow *m_pSashWindowLeft;
+    wxSashLayoutWindow *m_pSashWindowRight;
+    wxVTKRenderWindowInteractor        *m_pVTKWindow;
+    wxVTKRenderWindowInteractor        *m_pAnotherVTKWindow;
 
   // vtk classes
   vtkRenderer       *pRenderer;
+  vtkRenderer       *pAnotherRenderer;
   vtkRenderWindow   *pRenderWindow;
+  vtkRenderWindow   *pAnotherRenderWindow;
   vtkPolyDataMapper *pConeMapper;
   vtkActor          *pConeActor;
   vtkConeSource     *pConeSource;
@@ -80,6 +89,9 @@ enum
 
 #define MY_FRAME      101
 #define MY_VTK_WINDOW 102
+#define MY_ANOTHER_VTK_WINDOW 105
+#define MY_WINDOW_LEFT  103
+#define MY_WINDOW_RIGHT 104
 
 // the event tables connect the wxWindows events with the functions (event
 // handlers) which process them. It can be also done at run-time, but for the
@@ -87,6 +99,8 @@ enum
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(Minimal_Quit,  MyFrame::OnQuit)
     EVT_MENU(Minimal_About, MyFrame::OnAbout)
+    EVT_SIZE(MyFrame::OnSize)
+    EVT_SASH_DRAGGED_RANGE(MY_WINDOW_LEFT, MY_WINDOW_RIGHT, MyFrame::OnSashDrag)
 END_EVENT_TABLE()
 
 // Create a new application object: this macro will allow wxWindows to create
@@ -115,7 +129,8 @@ bool MyApp::OnInit()
 
 // frame constructor
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-       : wxFrame((wxFrame *)NULL, -1, title, pos, size)
+       : wxFrame((wxFrame *)NULL, -1, title, pos, size), m_pSashWindowLeft(0),
+	     m_pSashWindowRight(0)
 {
 #ifdef __WXMAC__
     // we need this in order to allow the about menu relocation, since ABOUT is
@@ -145,61 +160,88 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 #if wxUSE_STATUSBAR
     // create a status bar just for fun (by default with 1 pane only)
+    // not exactly fun...as it show a bug in wxWindow 2.4.0 :(
     CreateStatusBar(2);
-    SetStatusText("Drag the mouse here! (wxWindows 2.4.0)");
+    SetStatusText("Welcome to wxVTK!");
 #endif // wxUSE_STATUSBAR
 
-    m_pVTKWindow = new wxVTKRenderWindowInteractor(this, MY_VTK_WINDOW);
-    m_pVTKWindow->UseCaptureMouseOn();
-//    m_pVTKWindow->DebugOn();
+    m_pSashWindowLeft = new wxSashLayoutWindow(this, MY_WINDOW_LEFT, wxDefaultPosition, 
+					       wxSize(size.GetWidth()/2, size.GetHeight()), 
+					       wxNO_BORDER|wxSW_3D| wxCLIP_CHILDREN);
+    m_pSashWindowLeft->SetDefaultSize(wxSize(size.GetWidth()/2, size.GetHeight()));
+    m_pSashWindowLeft->SetOrientation(wxLAYOUT_VERTICAL);
+    m_pSashWindowLeft->SetAlignment(wxLAYOUT_LEFT);
+    m_pSashWindowLeft->SetSashVisible(wxSASH_RIGHT, TRUE);
+
+    m_pSashWindowRight = new wxSashLayoutWindow(this, MY_WINDOW_RIGHT, wxDefaultPosition,
+						wxSize(size.GetWidth()/2, size.GetHeight()), 
+						wxNO_BORDER|wxSW_3D| wxCLIP_CHILDREN);
+    m_pSashWindowRight->SetDefaultSize(wxSize(size.GetWidth()/2, size.GetHeight()));
+    m_pSashWindowRight->SetOrientation(wxLAYOUT_VERTICAL);
+    m_pSashWindowRight->SetAlignment(wxLAYOUT_LEFT);
+
+    m_pVTKWindow = new wxVTKRenderWindowInteractor(m_pSashWindowLeft, MY_VTK_WINDOW);
+
+    m_pAnotherVTKWindow = new wxVTKRenderWindowInteractor(m_pSashWindowRight, MY_ANOTHER_VTK_WINDOW);
+
     ConstructVTK();
     ConfigureVTK();
 }
 
 MyFrame::~MyFrame()
 {
-  if(m_pVTKWindow) m_pVTKWindow->Delete();
   DestroyVTK();
+  m_pVTKWindow->Delete();
+  m_pAnotherVTKWindow->Delete();
 }
 
 void MyFrame::ConstructVTK()
 {
   pRenderer     = vtkRenderer::New();
+  pAnotherRenderer = vtkRenderer::New();
   pConeMapper   = vtkPolyDataMapper::New();
   pConeActor    = vtkActor::New();
   pConeSource   = vtkConeSource::New();
-  
 }
 
 void MyFrame::ConfigureVTK()
 {
-  // connect the render window and wxVTK window
-  pRenderWindow = m_pVTKWindow->GetRenderWindow();
-
-  // connect renderer and render window and configure render window
+  // connect  render -> render window -> wxVTK window
+  pRenderWindow =  m_pVTKWindow->GetRenderWindow();
   pRenderWindow->AddRenderer(pRenderer);
 
+  // connect  render -> render window -> wxVTK window
+  pAnotherRenderWindow = m_pAnotherVTKWindow->GetRenderWindow();
+  pAnotherRenderWindow->AddRenderer(pAnotherRenderer);
+ 
   // initialize cone
   pConeSource->SetResolution(8);
-  
+
   // connect pipeline
   pConeMapper->SetInput(pConeSource->GetOutput());
   pConeActor->SetMapper(pConeMapper);
   pRenderer->AddActor(pConeActor);
+  pAnotherRenderer->AddActor(pConeActor);
 
-  // configure renderer
-  pRenderer->SetBackground(1.0,0.333333,0.5);
+  // configure renderers
+  pRenderer->SetBackground(0.0,0.0,0.0);
   pRenderer->GetActiveCamera()->Elevation(30.0);
   pRenderer->GetActiveCamera()->Azimuth(30.0);
   pRenderer->GetActiveCamera()->Zoom(1.0);
   pRenderer->GetActiveCamera()->SetClippingRange(1,1000);
+  pAnotherRenderer->SetBackground(0.0,0.0,0.0);
+  pAnotherRenderer->GetActiveCamera()->Elevation(30.0);
+  pAnotherRenderer->GetActiveCamera()->Azimuth(-30.0);
+  pAnotherRenderer->GetActiveCamera()->Zoom(1.0);
+  pAnotherRenderer->GetActiveCamera()->SetClippingRange(1,1000);
 }
 
 void MyFrame::DestroyVTK()
 {
-//http://www.vtk.org/pipermail/vtkusers/2003-September/019894.html
   if (pRenderer != 0)
     pRenderer->Delete();
+  if (pAnotherRenderer != 0)
+    pAnotherRenderer->Delete();
   if (pConeMapper != 0)
     pConeMapper->Delete();
   if (pConeActor != 0)
@@ -222,4 +264,43 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     msg.Printf( _T("This is the about dialog of wx-vtk sample.\n"), wxVERSION_STRING);
 
     wxMessageBox(msg, "About wx-vtk", wxOK | wxICON_INFORMATION, this);
+}
+
+void MyFrame::OnSize(wxSizeEvent& event)
+{
+  if (m_pSashWindowLeft != 0)
+    m_pSashWindowLeft->SetDefaultSize(wxSize(event.GetSize().GetWidth()/2, event.GetSize().GetHeight()));
+  if (m_pSashWindowRight != 0)
+    m_pSashWindowRight->SetDefaultSize(wxSize(event.GetSize().GetWidth()/2, event.GetSize().GetHeight()));
+
+  wxLayoutAlgorithm layout;
+  layout.LayoutFrame(this);
+}
+
+void MyFrame::OnSashDrag(wxSashEvent& event)
+{
+    if (event.GetDragStatus() == wxSASH_STATUS_OUT_OF_RANGE)
+        return;
+
+    switch (event.GetId())
+    {
+        case MY_WINDOW_LEFT:
+        {
+	  if (m_pSashWindowLeft != 0)
+            m_pSashWindowLeft->SetDefaultSize(wxSize(event.GetDragRect().width, GetSize().GetHeight()));
+	  if (m_pSashWindowRight != 0)
+	    m_pSashWindowRight->SetDefaultSize(wxSize(GetSize().GetWidth() - event.GetDragRect().width, GetSize().GetHeight()));
+            break;
+        }
+        case MY_WINDOW_RIGHT:
+        {
+	  if (m_pSashWindowRight != 0)
+  	    m_pSashWindowRight->SetDefaultSize(wxSize(event.GetDragRect().width, GetSize().GetHeight()));
+	  if (m_pSashWindowLeft != 0)
+	    m_pSashWindowLeft->SetDefaultSize(wxSize(GetSize().GetWidth() - event.GetDragRect().width, GetSize().GetHeight()));
+            break;
+        }
+    }
+    wxLayoutAlgorithm layout;
+    layout.LayoutFrame(this);
 }

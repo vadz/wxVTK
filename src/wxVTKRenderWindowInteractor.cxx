@@ -17,6 +17,7 @@
 =========================================================================*/
 
 #include "wxVTKRenderWindowInteractor.h"
+vtkCxxRevisionMacro(wxVTKRenderWindowInteractor, "$Revision$");
 
 #if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
 #  include <vtkCommand.h>
@@ -61,7 +62,11 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxGLCanvas)
 #if !(VTK_MAJOR_VERSION == 3 && VTK_MINOR_VERSION == 1)
   EVT_ENTER_WINDOW(wxVTKRenderWindowInteractor::OnEnter)
   EVT_LEAVE_WINDOW(wxVTKRenderWindowInteractor::OnLeave)
-  EVT_KEY_DOWN    (wxVTKRenderWindowInteractor::OnKeyDown)
+// If we use EVT_KEY_DOWN instead of EVT_CHAR, capital versions
+// of all characters are always returned.  EVT_CHAR also performs
+// other necessary keyboard-dependent translations.
+// EVT_KEY_DOWN    (wxVTKRenderWindowInteractor::OnKeyDown)
+  EVT_CHAR        (wxVTKRenderWindowInteractor::OnKeyDown)
   EVT_KEY_UP      (wxVTKRenderWindowInteractor::OnKeyUp)
 #endif
   EVT_TIMER       (ID_wxVTKRenderWindowInteractor_TIMER, wxVTKRenderWindowInteractor::OnTimer)
@@ -115,10 +120,10 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
 {
-/*  if(this->RenderWindow != NULL)
+  if(this->RenderWindow != NULL)
   {
     this->RenderWindow->UnRegister(this);
-  }*/
+  }
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
@@ -214,12 +219,26 @@ void wxVTKRenderWindowInteractor::OnTimer(wxTimerEvent& WXUNUSED(event))
 long wxVTKRenderWindowInteractor::GetHandle()
 {
   //helper function to hide the MSW vs GTK stuff
-  //TODO: wxMAC and wxMOTIF
   long handle_tmp = 0;
 
 #ifdef __WXMSW__
     handle_tmp = (long)this->GetHWND();
 #endif //__WXMSW__
+
+#ifdef __WXMAC__
+#ifdef VTK_USE_COCOA
+  wxTopLevelWindow* toplevel = dynamic_cast<wxTopLevelWindow*>(
+    wxGetTopLevelParent( this ) ) ;
+  if (toplevel != NULL )
+  {
+    handle_tmp = (long)toplevel->GetNSWindow();
+  }
+#endif //VTK_USE_COCOA
+#ifdef VTK_USE_CARBON
+    handle_tmp = (long)this->MacGetRootWindow();
+#endif //VTK_USE_CARBON
+#endif //__WXMAC__
+
     // Find and return the actual X-Window.
 #ifdef __WXGTK__
     if (m_wxwindow) {
@@ -266,11 +285,6 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
 {
-  //FIXME: this is also necessary to update the context on MSW for a change !
-//#ifdef __WXMSW__
-  //WX_BASE_CLASS::OnSize(event);
-//#endif
-
   int w, h;
   GetClientSize(&w, &h);
   UpdateSize(w, h);

@@ -1,0 +1,121 @@
+There has been a lot of problem to compile VTK and wxWindows together. I tried
+to sum up all possible (=reported) problems in this README file.
+
+Under VC++6 there are some tricks to know:
+-------------------------------------------
+
+Q1. Under Win32, don't call vtkRenderer::Delete();
+I didn't had time to explore this:
+http://www.vtk.org/pipermail/vtkusers/2003-September/019894.html
+
+
+Q2. Linkage has to be consistent. The class has been succesfully built with 
+there four cases:
+
+                     VTK static     VTK dynamic
+wxWindows static        1                3
+wxWindows dynamic       2                4
+
+Just open the file: wxVTKRenderWindowInteractor.h, find the line:
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInteractor
+      ^^^^^^^^^^^^^^^^^^^^
+And change it accordingly
+
+  1. VTK_RENDERING_EXPORT is ok
+  2. VTK_RENDERING_EXPORT is ok
+  3. WXDLLEXPORT is ok
+  4. remove WXDLLEXPORT / VTK_RENDERING_EXPORT
+  
+
+Q3. I want to link wxWindows as shared and I am getting tons of linkage error:
+
+Sample.obj : error LNK2001: unresolved external symbol "protected: static struct wxEventTable const  wxFrame::sm_eventTable" (?sm_eventTable@wxFrame@@1UwxEventTable@@B)
+Sample.obj : error LNK2001: unresolved external symbol "int const  wxEVT_NULL" (?wxEVT_NULL@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_NULL" (?wxEVT_NULL@@3HB)
+Sample.obj : error LNK2001: unresolved external symbol "int const  wxEVT_COMMAND_MENU_SELECTED" (?wxEVT_COMMAND_MENU_SELECTED@@3HB)
+Sample.obj : error LNK2001: unresolved external symbol "class wxWindowList  wxTopLevelWindows" (?wxTopLevelWindows@@3VwxWindowList@@A)
+Sample.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxApp::sm_classwxApp" (?sm_classwxApp@wxApp@@2VwxClassInfo@@A)
+Sample.obj : error LNK2001: unresolved external symbol "protected: static class wxApp * (__cdecl* wxAppBase::m_appInitFn)(void)" (?m_appInitFn@wxAppBase@@1P6APAVwxApp@@XZA)
+Sample.obj : error LNK2001: unresolved external symbol "class wxApp *  wxTheApp" (?wxTheApp@@3PAVwxApp@@A)
+Sample.obj : error LNK2001: unresolved external symbol "class wxPoint const  wxDefaultPosition" (?wxDefaultPosition@@3VwxPoint@@B)
+Sample.obj : error LNK2001: unresolved external symbol "class wxSize const  wxDefaultSize" (?wxDefaultSize@@3VwxSize@@B)
+Sample.obj : error LNK2001: unresolved external symbol "char const * const  wxPanelNameStr" (?wxPanelNameStr@@3PBDB)
+Sample.obj : error LNK2001: unresolved external symbol "char const * const  wxStatusLineNameStr" (?wxStatusLineNameStr@@3PBDB)
+Sample.obj : error LNK2001: unresolved external symbol "char const * const  wxFrameNameStr" (?wxFrameNameStr@@3PBDB)
+Sample.obj : error LNK2001: unresolved external symbol "char const * const  wxEmptyString" (?wxEmptyString@@3PBDB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "char const * const  wxEmptyString" (?wxEmptyString@@3PBDB)
+Sample.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxFrame::sm_classwxFrame" (?sm_classwxFrame@wxFrame@@2VwxClassInfo@@A)
+Sample.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxEvtHandler::sm_classwxEvtHandler" (?sm_classwxEvtHandler@wxEvtHandler@@2VwxClassInfo@@A)
+Sample.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxObject::sm_classwxObject" (?sm_classwxObject@wxObject@@2VwxClassInfo@@A)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxObject::sm_classwxObject" (?sm_classwxObject@wxObject@@2VwxClassInfo@@A)
+Sample.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxMenu::sm_classwxMenu" (?sm_classwxMenu@wxMenu@@2VwxClassInfo@@A)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "protected: static struct wxEventTable const  wxWindow::sm_eventTable" (?sm_eventTable@wxWindow@@1UwxEventTable@@B)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo *  wxClassInfo::sm_first" (?sm_first@wxClassInfo@@2PAV1@A)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_SIZE" (?wxEVT_SIZE@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_TIMER" (?wxEVT_TIMER@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_KEY_UP" (?wxEVT_KEY_UP@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_CHAR" (?wxEVT_CHAR@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_LEAVE_WINDOW" (?wxEVT_LEAVE_WINDOW@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_ENTER_WINDOW" (?wxEVT_ENTER_WINDOW@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_RIGHT_UP" (?wxEVT_RIGHT_UP@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_MIDDLE_UP" (?wxEVT_MIDDLE_UP@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_LEFT_UP" (?wxEVT_LEFT_UP@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_RIGHT_DOWN" (?wxEVT_RIGHT_DOWN@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_MIDDLE_DOWN" (?wxEVT_MIDDLE_DOWN@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_LEFT_DOWN" (?wxEVT_LEFT_DOWN@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_MOTION" (?wxEVT_MOTION@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_ERASE_BACKGROUND" (?wxEVT_ERASE_BACKGROUND@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "int const  wxEVT_PAINT" (?wxEVT_PAINT@@3HB)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxFont::sm_classwxFont" (?sm_classwxFont@wxFont@@2VwxClassInfo@@A)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxGDIObject::sm_classwxGDIObject" (?sm_classwxGDIObject@wxGDIObject@@2VwxClassInfo@@A)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxWindowBase::sm_classwxWindowBase" (?sm_classwxWindowBase@wxWindowBase@@2VwxClassInfo@@A)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxWindow::sm_classwxWindow" (?sm_classwxWindow@wxWindow@@2VwxClassInfo@@A)
+wxVTKRenderWindowInteractor.obj : error LNK2001: unresolved external symbol "public: static class wxClassInfo  wxTimer::sm_classwxTimer" (?sm_classwxTimer@wxTimer@@2VwxClassInfo@@A)
+MSVCRT.lib(crtexew.obj) : error LNK2001: unresolved external symbol _WinMain@16
+Release/Sample.exe : fatal error LNK1120: 40 unresolved externals
+Error executing link.exe.
+
+
+  In this case you have to add manually in VC++6/Settings/Preprocessor options:
+
+      WXUSINGDLL=1
+  Please refer to :http://www.cmake.org/pipermail/cmake/2003-September/004263.html
+  to check if a better solution has been found.
+
+
+Q4. I compiled VTK with DEBUG_LEAK=ON and I get:
+
+Generic Warning: In /home/malat/Kitware/VTK/Common/vtkDebugLeaks.cxx, line 280
+Deleting unknown object: wxVTKRenderWindowInteractor
+
+  That's ok it is just that we are not registered.
+  Keep in mind to not delete explicitely a wxVTKRenderWindow instance:
+  don't use:
+
+                            delete m_WXRWI
+                            
+  but instead use (just as any other VTK object):
+
+                          m_WXRWI->Delete();
+  
+
+Q5. What's is this Modules directory ?
+    This is mainly for historical reason, when cmake was not so well integrated
+    with wxWindows.
+
+
+Q6. What are the OS supported ? 
+    I have personnally tested it under Win32 and Linux.
+    I have been reported that it works under :
+      - Unix, 
+      - HP-UX
+      - From a win box (win2k) using Exceed as Xserver
+  
+
+Q7. Which VTK version is supported ?
+    VTK 3.1, VTK 3.2, VTK 4.0, VTK 4.2 and VTK CVS !!
+    
+
+Q8. I have a MAcOSX Os, and this piece of code doesn't work !
+    As I don't have a MacOSX, please send me a complete bug report (as much
+    details as you can: mathieu.malaterre@creatis.insa-lyon.fr). Thanks !
