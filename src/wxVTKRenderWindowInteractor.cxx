@@ -24,26 +24,7 @@
 #  include <vtkInteractorStyle.h>
 #endif //(VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
 
-
-#ifdef __WXGTK__
-#  include <wx/gtk/win_gtk.h>
-// Keep capturing mouse after mouse is dragged out of window
-// (in wxGTK 2.3.2 there is a bug that keeps this from working,
-// but it is only relevant in wxGTK if there are multiple windows)
-#if wxCHECK_VERSION(2, 3, 2)
-#  define WX_USE_X_CAPTURE  0
-#else // replacement code for old version
-#  define WX_USE_X_CAPTURE 1
-#endif //wxCHECK_VERSION(2, 3, 2)
-#endif //__WXGTK__
-
-
-//If you are using wxGTK 2.3.2 or upper you'll have to read this first:
-//http://lists.wxwindows.org/cgi-bin/ezmlm-cgi?8:msn:35104:ofoclegabbpaiopbgagi
-//After making the change you'll be able to use WX_USE_X_CAPTURE = 1
-//Just (un)comment the following line:
-//#define WX_USE_X_CAPTURE 1
-
+#include "wx/dcclient.h"
 
 //Keep this for compatibilty reason, this was introduced in wxGTK 2.4.0
 #if (!wxCHECK_VERSION(2, 4, 0))
@@ -91,7 +72,7 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : WX_BASE_CLASS(),
 {
   Created = true;
   RenderWhenDisabled = 1;
-  handle = Stereo = 0;
+  UseCaptureMouse = Handle = Stereo = 0;
   ActiveButton  = wxEVT_NULL;
 
   //The following is right...
@@ -109,7 +90,7 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent, wxWin
 {
   Created = true;
   RenderWhenDisabled = 1;
-  handle = Stereo = 0;
+  UseCaptureMouse = Handle = Stereo = 0;
   ActiveButton  = wxEVT_NULL;
 
   //The following is right...
@@ -217,7 +198,7 @@ long wxVTKRenderWindowInteractor::GetHandle()
   long handle_tmp = 0;
 
 #ifdef __WXMSW__
-    handle_tmp = (long)win->GetHandle();
+    handle_tmp = (long)this->GetHWND();
 #endif //__WXMSW__
     // Find and return the actual X-Window.
 #ifdef __WXGTK__
@@ -244,10 +225,10 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
   wxPaintDC pDC(this);
 
   //do it here rather than in the cstor: this is safer.
-  if(!handle)
+  if(!Handle)
   {
-    handle = GetHandle();
-    RenderWindow->SetWindowId(reinterpret_cast<void *>(handle));
+    Handle = GetHandle();
+    RenderWindow->SetWindowId(reinterpret_cast<void *>(Handle));
   }
   // get vtk to render to the wxWindows
   Render();
@@ -262,7 +243,7 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
 void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
 {
   // this is also necessary to update the context on some platforms
-  WX_BASE_CLASS::OnSize(event);
+//  WX_BASE_CLASS::OnSize(event);
 
   int w, h;
   GetClientSize(&w, &h);
@@ -276,7 +257,7 @@ void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
 #if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
   InvokeEvent(vtkCommand::ConfigureEvent, NULL);
 #endif
-  //this will check for handle
+  //this will check for Handle
   Render();
 }
 //---------------------------------------------------------------------------
@@ -384,7 +365,10 @@ void wxVTKRenderWindowInteractor::OnButtonDown(wxMouseEvent &event)
 #endif
   }
   //save the button and capture mouse until the button is released
-  if ((ActiveButton != wxEVT_NULL) && WX_USE_X_CAPTURE)
+  //Only if :
+  //1. it is possible (WX_USE_X_CAPTURE)
+  //2. user decided to.
+  if ((ActiveButton != wxEVT_NULL) && WX_USE_X_CAPTURE && UseCaptureMouse)
   {
     CaptureMouse();
   }
@@ -439,7 +423,7 @@ void wxVTKRenderWindowInteractor::OnButtonUp(wxMouseEvent &event)
 #endif
   }
   //if the ActiveButton is realeased, then release mouse capture
-  if ((ActiveButton != wxEVT_NULL) && WX_USE_X_CAPTURE)
+  if ((ActiveButton != wxEVT_NULL) && WX_USE_X_CAPTURE && UseCaptureMouse)
   {
     ReleaseMouse();
   }
@@ -519,7 +503,7 @@ void wxVTKRenderWindowInteractor::Render()
 
   if (RenderAllowed)
     {
-    if(handle && (handle == GetHandle()) )
+    if(Handle && (Handle == GetHandle()) )
       {
       RenderWindow->Render();
       }
@@ -529,8 +513,8 @@ void wxVTKRenderWindowInteractor::Render()
       //this means the user has reparented us; let's adapt to the
       //new situation by doing the WindowRemap dance
       //store the new situation
-      handle = GetHandle();
-      RenderWindow->SetNextWindowId(reinterpret_cast<void *>(handle));
+      Handle = GetHandle();
+      RenderWindow->SetNextWindowId(reinterpret_cast<void *>(Handle));
       RenderWindow->WindowRemap();
       RenderWindow->Render();
       }
@@ -573,4 +557,3 @@ void wxVTKRenderWindowInteractor::SetStereo(int capable)
     Modified();
     }
 }
-
