@@ -260,6 +260,7 @@ long wxVTKRenderWindowInteractor::GetHandle()
 //According to David Elliot I can use:
    //handle_tmp = (long)objc_msgSend(GetNSView(), "window");
    handle_tmp = (long)[GetNSView() window];
+#endif
 #endif //__WXCOCOA__
 
 //__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
