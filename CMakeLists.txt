@@ -41,6 +41,7 @@ ${wxVTKSample_SOURCE_DIR}/src/
 IF(WIN32)
   SET(WIN32_EXECUTABLE WIN32)
 ENDIF(WIN32)
+#MACOSX_BUNDLE
 IF(VTK_USE_X)
   FIND_PACKAGE(GTK)
   #I don't like also the way CMake search GTK
