@@ -306,6 +306,9 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
   {
     Handle = GetHandle();
     RenderWindow->SetWindowId(reinterpret_cast<void *>(Handle));
+#ifdef __WXMSW__
+    RenderWindow->SetParentId(reinterpret_cast<void *>(this->GetParent()->GetHWND()));
+#endif //__WXMSW__
   }
   // get vtk to render to the wxWindows
   Render();
