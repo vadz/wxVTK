@@ -39,47 +39,52 @@ ${wxVTKSample_SOURCE_DIR}/src/
 )
 
 IF(WIN32)
-  SET(WIN32_EXECUTABLE WIN32)
+  SET(GUI_EXECUTABLE WIN32)
 ENDIF(WIN32)
-#MACOSX_BUNDLE
-IF(VTK_USE_X)
-  FIND_PACKAGE(GTK)
-  #I don't like also the way CMake search GTK
-  #provide my own:
-  #INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK.cmake)
-  IF(GTK_FOUND)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-  ENDIF(GTK_FOUND)
+IF(APPLE)
+  SET(GUI_EXECUTABLE MACOSX_BUNDLE)
+ENDIF(APPLE)
 
+IF(VTK_USE_X)
+  # Is this always true ?
+  FIND_PACKAGE(GTK)
+  INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR})
+
+  #I don't like also the way CMake search GTK, provide my own:
+  #INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK.cmake)
+  #IF(GTK_FOUND)
+  #  SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+  #ENDIF(GTK_FOUND)
 ENDIF(VTK_USE_X)
-  IF(CMAKE_WX_CXX_FLAGS)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_WX_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-  ENDIF(CMAKE_WX_CXX_FLAGS)
+
+IF(CMAKE_WX_CXX_FLAGS)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_WX_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+ENDIF(CMAKE_WX_CXX_FLAGS)
 
 SET(SRCS_Sample
-Sample/Sample.cpp
-src/wxVTKRenderWindowInteractor.cxx
-)
+  Sample/Sample.cpp
+  src/wxVTKRenderWindowInteractor.cxx
+  )
 
 SET(SRCS_SplitSample
-Sample/SplitSample.cpp
-src/wxVTKRenderWindowInteractor.cxx
-)
+  Sample/SplitSample.cpp
+  src/wxVTKRenderWindowInteractor.cxx
+  )
 
 SET(SRCS_ImagePlaneWidget
-Sample/wxImagePlaneWidget.cxx
-src/wxVTKRenderWindowInteractor.cxx
-)
+  Sample/wxImagePlaneWidget.cxx
+  src/wxVTKRenderWindowInteractor.cxx
+  )
 
 SET(SRCS_ImageViewer
-Sample/wxImageViewer.cxx
-src/wxVTKRenderWindowInteractor.cxx
-)
+  Sample/wxImageViewer.cxx
+  src/wxVTKRenderWindowInteractor.cxx
+  )
 
 SET(SRCS_Medical3
-Sample/wxMedical3.cxx
-src/wxVTKRenderWindowInteractor.cxx
-)
+  Sample/wxMedical3.cxx
+  src/wxVTKRenderWindowInteractor.cxx
+  )
 
 LINK_LIBRARIES(
   vtkIO
@@ -88,14 +93,14 @@ LINK_LIBRARIES(
   vtkGraphics
   vtkRendering
   ${WXWINDOWS_LIBRARY}
-)
+  )
 
-ADD_EXECUTABLE(Sample ${WIN32_EXECUTABLE} ${SRCS_Sample})
-ADD_EXECUTABLE(SplitSample ${WIN32_EXECUTABLE} ${SRCS_SplitSample})
+ADD_EXECUTABLE(Sample ${GUI_EXECUTABLE} ${SRCS_Sample})
+ADD_EXECUTABLE(SplitSample ${GUI_EXECUTABLE} ${SRCS_SplitSample})
 
-ADD_EXECUTABLE(wxImagePlaneWidget ${WIN32_EXECUTABLE} ${SRCS_ImagePlaneWidget})
-ADD_EXECUTABLE(wxImageViewer ${WIN32_EXECUTABLE} ${SRCS_ImageViewer})
-ADD_EXECUTABLE(wxMedical3 ${WIN32_EXECUTABLE} ${SRCS_Medical3})
+ADD_EXECUTABLE(wxImagePlaneWidget ${GUI_EXECUTABLE} ${SRCS_ImagePlaneWidget})
+ADD_EXECUTABLE(wxImageViewer ${GUI_EXECUTABLE} ${SRCS_ImageViewer})
+ADD_EXECUTABLE(wxMedical3 ${GUI_EXECUTABLE} ${SRCS_Medical3})
 
 ELSE ( CMAKE_WX_CAN_COMPILE )
 

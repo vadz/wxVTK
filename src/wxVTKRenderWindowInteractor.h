@@ -54,10 +54,6 @@
 // vtk includes
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
-//This is needed for vtk 3.1 :
-#ifndef VTK_MAJOR_VERSION
-#  include "vtkVersion.h"
-#endif
 
 #ifdef __WXGTK__
 #  if wxUSE_GLCANVAS
@@ -65,11 +61,11 @@
 #    include <wx/gtk/win_gtk.h>
 #    include <wx/glcanvas.h>
 #  else
-#    error "problem of wxGLCanvas"
+#    error "problem of wxGLCanvas, you need to build wxWidgets with opengl"
 #  endif //wxUSE_GLCANVAS
 #endif //__WXGTK__
 
-//Motif version (renamed into wxX11 for wxWindow 2.4 and newer)
+// Motif version (renamed into wxX11 for wxWindow 2.4 and newer)
 #if defined(__WXMOTIF__) 
 # error This GUI is not supported by wxVTKRenderWindowInteractor for now
 #endif
