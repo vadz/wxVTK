@@ -4,6 +4,7 @@ PROJECT (wxVTKSample)
 #      - try the MAC version
 #      - try Andy's version of wxWindow
 
+#-----------------------------------------------------------------------------
 FIND_PACKAGE(VTK)
 IF (VTK_FOUND)
   INCLUDE(${VTK_USE_FILE})
@@ -12,6 +13,12 @@ ELSE(VTK_FOUND)
      "Cannot build without VTK.  Please set VTK_DIR.")
 ENDIF (VTK_FOUND)
 
+#-----------------------------------------------------------------------------
+SET (EXECUTABLE_OUTPUT_PATH ${wxVTKSample_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
+SET (LIBRARY_OUTPUT_PATH ${wxVTKSample_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
+MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+
+#-----------------------------------------------------------------------------
 SET(WXWINDOWS_USE_GL 1) 
 #When http://www.cmake.org/pipermail/cmake/2003-September/004263.html
 #will be solved VTK + wxWindows would hopefully fully collaborate  !
@@ -32,12 +39,16 @@ ENDIF(WXWINDOWS_INCLUDE_DIR)
 #  INCLUDE(${WX_BINARY_PATH}/UseWX.cmake)
 #ENDIF(WX_BINARY_PATH)
 
+IF(CMAKE_WX_CXX_FLAGS)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_WX_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+ENDIF(CMAKE_WX_CXX_FLAGS)
 
 #Add our own include path
 INCLUDE_DIRECTORIES(
-${wxVTKSample_SOURCE_DIR}/src/
-)
+  ${wxVTKSample_SOURCE_DIR}/src/
+  )
 
+#-----------------------------------------------------------------------------
 IF(WIN32)
   SET(GUI_EXECUTABLE WIN32)
 ENDIF(WIN32)
@@ -45,22 +56,38 @@ IF(APPLE)
   SET(GUI_EXECUTABLE MACOSX_BUNDLE)
 ENDIF(APPLE)
 
+#-----------------------------------------------------------------------------
 IF(VTK_USE_X)
-  # Is this always true ?
-  FIND_PACKAGE(GTK)
-  INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR})
+  # Is this always true, do we really need gtk all the time ?
 
   #I don't like also the way CMake search GTK, provide my own:
   #INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK.cmake)
   #IF(GTK_FOUND)
   #  SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
   #ENDIF(GTK_FOUND)
+
+  FIND_PROGRAM(CMAKE_PKG_CONFIG pkg-config ../gtk/bin ../../gtk/bin)
+  IF(CMAKE_PKG_CONFIG)
+    SET(CMAKE_GTK_CXX_FLAGS "`${CMAKE_PKG_CONFIG} --cflags gtk+-2.0`")
+    SET(GTK_LIBRARIES "`${CMAKE_PKG_CONFIG} --libs gtk+-2.0`")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+  ELSE(CMAKE_PKG_CONFIG)
+    FIND_PROGRAM(CMAKE_GTK_CONFIG gtk-config ../gtk/bin ../../gtk/bin)
+    IF(CMAKE_GTK_CONFIG)
+      SET(CMAKE_GTK_CXX_FLAGS "`${CMAKE_GTK_CONFIG} --cxxflags`")
+      SET(GTK_LIBRARIES "`${CMAKE_GTK_CONFIG} --libs`")
+      SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+    ELSE(CMAKE_GTK_CONFIG)
+      # DOH ! We need to default to CMake's modules
+      FIND_PACKAGE(GTK)
+      INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR})
+    ENDIF(CMAKE_GTK_CONFIG)
+  ENDIF(CMAKE_PKG_CONFIG)
+
 ENDIF(VTK_USE_X)
 
-IF(CMAKE_WX_CXX_FLAGS)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_WX_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-ENDIF(CMAKE_WX_CXX_FLAGS)
 
+#-----------------------------------------------------------------------------
 SET(SRCS_Sample
   Sample/Sample.cpp
   src/wxVTKRenderWindowInteractor.cxx
