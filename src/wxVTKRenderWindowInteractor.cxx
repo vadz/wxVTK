@@ -17,7 +17,6 @@
 =========================================================================*/
 
 #include "wxVTKRenderWindowInteractor.h"
-vtkCxxRevisionMacro(wxVTKRenderWindowInteractor, "$Revision$");
 
 #if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
 #  include <vtkCommand.h>
@@ -120,10 +119,10 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
 {
-  if(this->RenderWindow != NULL)
+/*  if(this->RenderWindow != NULL)
   {
     this->RenderWindow->UnRegister(this);
-  }
+  }*/
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
@@ -601,3 +600,6 @@ void wxVTKRenderWindowInteractor::SetStereo(int capable)
     Modified();
     }
 }
+
+#undef ID_wxVTKRenderWindowInteractor_TIMER
+#undef WX_USE_X_CAPTURE

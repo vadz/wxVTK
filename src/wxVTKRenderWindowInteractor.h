@@ -92,9 +92,9 @@ class wxKeyEvent;
 class wxSizeEvent;
 
 #ifdef __WXMSW__
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInteractor
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtual public vtkRenderWindowInteractor
 #else
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, public vtkRenderWindowInteractor
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, virtual public vtkRenderWindowInteractor
 #endif
 {
   DECLARE_DYNAMIC_CLASS(wxVTKRenderWindowInteractor)
@@ -111,7 +111,6 @@ class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, publ
                                 const wxString &name = wxPanelNameStr);
 	//vtk ::New()
     static wxVTKRenderWindowInteractor * New();
-    vtkTypeRevisionMacro(wxVTKRenderWindowInteractor, vtkRenderWindowInteractor);
 
 	 //destructor
     ~wxVTKRenderWindowInteractor();
