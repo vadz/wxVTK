@@ -158,6 +158,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 MyFrame::~MyFrame()
 {
   if(m_pVTKWindow) m_pVTKWindow->Delete();
+  //delete m_pVTKWindow;
   DestroyVTK();
 }
 

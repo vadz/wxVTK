@@ -18,10 +18,6 @@
 
 #include "wxVTKRenderWindowInteractor.h"
 
-#ifdef _MSC_VER
-#  pragma warning(disable : 4355)
-#endif
-
 #if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
 #  include <vtkCommand.h>
 #else
@@ -65,50 +61,59 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, WX_BASE_CLASS)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------------------------
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : WX_BASE_CLASS(), 
-  vtkRenderWindowInteractor(), timer(this, ID_wxVTKRenderWindowInteractor_TIMER), ActiveButton(wxEVT_NULL),
-  RenderAllowed(0), Stereo(0), Handle(0), Created(true), RenderWhenDisabled(1), UseCaptureMouse(0)
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor()
+      : WX_BASE_CLASS()
+      , vtkRenderWindowInteractor()
+      , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
+      , ActiveButton(wxEVT_NULL)
+      , RenderAllowed(0)
+      , Stereo(0)
+      , Handle(0)
+      , Created(true)
+      , RenderWhenDisabled(1)
+      , UseCaptureMouse(0)
 {
-//  Created = true;
-//  RenderWhenDisabled = 1;
-//  UseCaptureMouse = Handle = Stereo = 0;
-//  ActiveButton  = wxEVT_NULL;
-
   //The following is right...
   //this was the only way I found to deal with smart pointer
   //any improvement smarter is welcome:
   vtkRenderWindow *rwtemp = vtkRenderWindow::New();
-  SetRenderWindow(rwtemp);
+  vtkRenderWindowInteractor::SetRenderWindow(rwtemp);
   if(rwtemp) rwtemp->Delete();
 
 }
 //---------------------------------------------------------------------------
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent, wxWindowID id, 
-          const wxPoint &pos, const wxSize &size, long style, const wxString &name)
-  : WX_BASE_CLASS(parent, id, pos, size, style, name), vtkRenderWindowInteractor(), timer(this, ID_wxVTKRenderWindowInteractor_TIMER),
-  ActiveButton(wxEVT_NULL), RenderAllowed(0), Stereo(0), Handle(0), Created(true), RenderWhenDisabled(1), UseCaptureMouse(0)
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
+                                                         wxWindowID id,
+                                                         const wxPoint &pos,
+                                                         const wxSize &size,
+                                                         long style,
+                                                         const wxString &name)
+      : WX_BASE_CLASS(parent, id, pos, size, style, name)
+      , vtkRenderWindowInteractor()
+      , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
+      , ActiveButton(wxEVT_NULL)
+      , RenderAllowed(0)
+      , Stereo(0)
+      , Handle(0)
+      , Created(true)
+      , RenderWhenDisabled(1)
+      , UseCaptureMouse(0)
 {
-//  Created = true;
-//  RenderWhenDisabled = 1;
-//  UseCaptureMouse = Handle = Stereo = 0;
-//  ActiveButton  = wxEVT_NULL;
 
   //The following is right...
   //this was the only way I found to deal with smart pointer
   //any improvement smarter is welcome:
   vtkRenderWindow *rwtemp = vtkRenderWindow::New();
-  SetRenderWindow(rwtemp);
+  vtkRenderWindowInteractor::SetRenderWindow(rwtemp);
   if(rwtemp) rwtemp->Delete();
-
- 
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
 {
-  if (this->RenderWindow != NULL)
-    {
+/*  if(this->RenderWindow != NULL)
+  {
     this->RenderWindow->UnRegister(this);
-    }
+  }*/
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
@@ -121,6 +126,7 @@ void wxVTKRenderWindowInteractor::Initialize()
 {
   // enable everything and start rendering
   Enable();
+  RenderWindow->Start();
 
   // this is initialized
   Initialized = 1;
@@ -213,8 +219,7 @@ long wxVTKRenderWindowInteractor::GetHandle()
 #ifdef __WXGTK__
     if (m_wxwindow) {
 #ifdef __WXGTK20__
-        handle_tmp = (long) GDK_WINDOW_XWINDOW(GTK_PIZZA(
-          m_wxwindow)->bin_window);
+        handle_tmp = (long) GDK_WINDOW_XWINDOW(GTK_PIZZA(m_wxwindow)->bin_window);
 #else
         GdkWindowPrivate* bwin = reinterpret_cast<GdkWindowPrivate*>(
           GTK_PIZZA(m_wxwindow)->bin_window);
@@ -224,6 +229,10 @@ long wxVTKRenderWindowInteractor::GetHandle()
 #endif //__WXGTK20__
     }
 #endif //__WXGTK__
+
+#ifdef __WXMOTIF__
+    handle_tmp = (long)this->GetXWindow();
+#endif
 
   return handle_tmp;
 }
@@ -249,14 +258,8 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
   event.Skip(false);
 }
 //---------------------------------------------------------------------------
-void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &WXUNUSED(event))
+void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
 {
-  // this is also necessary to update the context on MSW for a change !
-# ifdef __WXMSW__
-  WX_BASE_CLASS::OnSize(event);
-  //wxNO_FULL_REPAINT_ON_RESIZE ??
-#endif
-
   int w, h;
   GetClientSize(&w, &h);
   UpdateSize(w, h);
@@ -381,7 +384,8 @@ void wxVTKRenderWindowInteractor::OnKeyUp(wxKeyEvent &event)
     event.ControlDown(), event.ShiftDown(), key, 0, NULL);
   InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
 #else
-  InteractorStyle->OnKeyUp(event.ControlDown(), event.ShiftDown(), event.GetKeyCode(), 1);
+  InteractorStyle->OnKeyUp(event.ControlDown(), event.ShiftDown(), 
+    event.GetKeyCode(), 1);
 #endif
   event.Skip();
 }

@@ -37,6 +37,10 @@
 #ifndef _wxVTKRenderWindowInteractor_h_
 #define _wxVTKRenderWindowInteractor_h_
 
+//#ifdef _MSC_VER
+//#  pragma warning(disable : 4355)
+//#endif
+
 // For compilers that support precompilation, includes "wx/wx.h".
 #include "wx/wxprec.h"
 
@@ -60,24 +64,14 @@
 #include <vtkVersion.h>
 #endif
 
-// Use wxGLCanvas as base class instead of wxWindow.
-// This is sometimes necessary under wxGTK or the image is blank.
-// Furthermore GLCanvas makes disappear flickering (reported by Prabhu
-// Ramachandran) with wxGTK 2.3.1
-// See: http://public.kitware.com/pipermail/vtkusers/2001-September/007895.html
-// Notes: in wxWindows 2.3.1 and earlier, the GLCanvas had scroll bars)
-#if wxUSE_GLCANVAS
-# ifdef __WXGTK__
-#   include <wx/glcanvas.h>
-#   define WX_BASE_CLASS wxGLCanvas
-# endif //__WXGTK__
-#else //wxUSE_GLCANVAS
+//For more info on this class please go to:
+//http://www.creatis.insa-lyon.fr/~malaterre/wxVTK/
+#ifdef __WXMSW__
 # define WX_BASE_CLASS wxWindow
 # define WX_USE_X_CAPTURE 1
-#endif //wxUSE_GLCANVAS
+#endif  //__WXMSW__
 
-
-
+//GTK 1.x & 2.x version
 #ifdef __WXGTK__
 #  include "gdk/gdkprivate.h"
 #  include <wx/gtk/win_gtk.h>
@@ -89,14 +83,24 @@
 #else // replacement code for old version
 #  define WX_USE_X_CAPTURE 1
 #endif //wxCHECK_VERSION(2, 3, 2)
+# if wxUSE_GLCANVAS
+#   include <wx/glcanvas.h>
+#   define WX_BASE_CLASS wxGLCanvas
+# else
+#   warning "problem of wxGLCanvas"
+# endif //wxUSE_GLCANVAS
 #endif //__WXGTK__
 
+//No mouse grab hack is needed with GTK 2.x
+//wxGLCanvas is needed to handle GTK 2.x double buffering interfering with OpenGL one
+#ifdef __WXGTK20__
+# define WX_USE_X_CAPTURE 0
+#endif
 
-//If you are using wxGTK 2.3.2 or upper you'll have to read this first:
-//http://lists.wxwindows.org/cgi-bin/ezmlm-cgi?8:msn:35600:hanbmbolbbdkidoopbai
-//After making the change you'll be able to use WX_USE_X_CAPTURE = 1
-//Just uncomment the following line:
-//#define WX_USE_X_CAPTURE 1
+//Motif version (renamed into wxX11 for wxWindow 2.4 and newer)
+#if defined(__WXMOTIF__) || defined(__WXMAC__)
+#error This GUI is not supported by wxVTKRenderWindowInteractor for now
+#endif
 
 // wx forward declarations
 class wxPaintEvent;
@@ -105,16 +109,20 @@ class wxTimerEvent;
 class wxKeyEvent;
 class wxSizeEvent;
 
-class wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRenderWindowInteractor
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRenderWindowInteractor
 {
   DECLARE_DYNAMIC_CLASS(wxVTKRenderWindowInteractor)
   
   public:
   //constructors
     wxVTKRenderWindowInteractor();
-    wxVTKRenderWindowInteractor(wxWindow *parent, wxWindowID id, const wxPoint &pos = wxDefaultPosition,
-	        const wxSize &size = wxDefaultSize, long style = wxWANTS_CHARS | wxNO_FULL_REPAINT_ON_RESIZE,
-           const wxString &name = wxPanelNameStr);
+
+    wxVTKRenderWindowInteractor(wxWindow *parent,
+                                wxWindowID id,
+                                const wxPoint &pos = wxDefaultPosition,
+                                const wxSize &size = wxDefaultSize,
+                                long style = wxWANTS_CHARS | wxNO_FULL_REPAINT_ON_RESIZE,
+                                const wxString &name = wxPanelNameStr);
 	//vtk ::New()
     static wxVTKRenderWindowInteractor * New();
 	 //destructor
@@ -145,7 +153,7 @@ class wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRend
 #endif
     void OnTimer(wxTimerEvent &event);
     void OnSize(wxSizeEvent &event);
-    
+
     void Render();
     void SetRenderWhenDisabled(int newValue);
 
