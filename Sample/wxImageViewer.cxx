@@ -29,6 +29,8 @@
 #include "vtkImageViewer2.h"
 #include "vtkImageData.h"
 #include "vtkTesting.h"
+#include "vtkTestUtilities.h"
+
 
 // the application icon
 #ifndef __WXMSW__

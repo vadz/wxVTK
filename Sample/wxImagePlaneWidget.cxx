@@ -39,6 +39,7 @@
 #include "vtkVolume16Reader.h"
 #include "vtkImageReslice.h"
 #include "vtkTesting.h"
+#include "vtkTestUtilities.h"
 
 #include "vtkImageData.h"
 #ifndef vtkFloatingPointType
