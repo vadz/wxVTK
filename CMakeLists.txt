@@ -54,6 +54,11 @@ IF(WIN32)
 ENDIF(WIN32)
 IF(APPLE)
   SET(GUI_EXECUTABLE MACOSX_BUNDLE)
+  IF(VTK_USE_COCOA)
+    SET_SOURCE_FILES_PROPERTIES(
+      src/wxVTKRenderWindowInteractor.cxx
+      PROPERTIES COMPILE_FLAGS "-ObjC++")
+  ENDIF(VTK_USE_COCOA)
 ENDIF(APPLE)
 
 #-----------------------------------------------------------------------------

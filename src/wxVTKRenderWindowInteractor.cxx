@@ -42,7 +42,8 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 // To access objc calls on cocoa
 #ifdef __WXCOCOA__
 #ifdef VTK_USE_COCOA
-#  include <objc/objc.h>
+#import <Cocoa/Cocoa.h>
+#define id Id
 #else
 #error Build mismatch you need both wxWidgets and VTK to be configure agains Cocoa to work
 #endif //VTK_USE_COCOA
@@ -257,7 +258,8 @@ long wxVTKRenderWindowInteractor::GetHandle()
   }
 #else
 //According to David Elliot I can use:
-   handle_tmp = (long)objc_msgSend(GetNSView(), "window");
+   //handle_tmp = (long)objc_msgSend(GetNSView(), "window");
+   handle_tmp = (long)[GetNSView() window];
 #endif //__WXCOCOA__
 
 //__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
