@@ -48,12 +48,17 @@
 #include <wx/wx.h>
 #endif
 
-#include "wx/timer.h"
+#include <wx/timer.h>
+#include <wx/dcclient.h>
 #define ID_wxVTKRenderWindowInteractor_TIMER 1001
 
 // vtk includes
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderWindow.h>
+//This is needed for vtk 3.1 :
+#ifndef VTK_MAJOR_VERSION
+#include <vtkVersion.h>
+#endif
 
 // Use wxGLCanvas as base class instead of wxWindow.
 // This is sometimes necessary under wxGTK or the image is blank.
@@ -62,14 +67,15 @@
 // See: http://public.kitware.com/pipermail/vtkusers/2001-September/007895.html
 // Notes: in wxWindows 2.3.1 and earlier, the GLCanvas had scroll bars)
 #if wxUSE_GLCANVAS
-#ifdef __WXMSW__
-#define WX_BASE_CLASS wxWindow
-#define WX_USE_X_CAPTURE 1
-#else
-#include <wx/glcanvas.h>
-#define WX_BASE_CLASS wxGLCanvas
-#endif //__WXMSW__
+# ifdef __WXGTK__
+#   include <wx/glcanvas.h>
+#   define WX_BASE_CLASS wxGLCanvas
+# endif //__WXGTK__
+#else //wxUSE_GLCANVAS
+# define WX_BASE_CLASS wxWindow
+# define WX_USE_X_CAPTURE 1
 #endif //wxUSE_GLCANVAS
+
 
 
 #ifdef __WXGTK__
@@ -112,7 +118,7 @@ class wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRend
 	//vtk ::New()
     static wxVTKRenderWindowInteractor * New();
 	 //destructor
-    ~wxVTKRenderWindowInteractor() {};
+    ~wxVTKRenderWindowInteractor();
 
     // vtkRenderWindowInteractor overrides
     void Initialize();
@@ -131,11 +137,12 @@ class wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRend
 
     void OnButtonDown(wxMouseEvent &event);
     void OnButtonUp(wxMouseEvent &event);
+#if !(VTK_MAJOR_VERSION == 3 && VTK_MINOR_VERSION == 1)
     void OnEnter(wxMouseEvent &event);
     void OnLeave(wxMouseEvent &event);
-    
     void OnKeyDown(wxKeyEvent &event);
     void OnKeyUp(wxKeyEvent &event);
+#endif
     void OnTimer(wxTimerEvent &event);
     void OnSize(wxSizeEvent &event);
     

@@ -13,6 +13,9 @@
 # EXTERNAL cache entries
 ########################
 
+//Build VTK with shared libraries.
+BUILD_SHARED_LIBS:BOOL=ON
+
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
 
@@ -29,7 +32,7 @@ CMAKE_BUILD_TYPE:STRING=Debug
 CMAKE_CXX_COMPILER:STRING=c++
 
 //Flags used by the compiler during all build types.
-CMAKE_CXX_FLAGS:STRING=-Wall
+CMAKE_CXX_FLAGS:STRING=-W -Wall
 
 //C++ DEBUG flags imported from VTK.
 CMAKE_CXX_FLAGS_DEBUG:STRING=-g
@@ -170,6 +173,9 @@ GTK_gtkgl_LIBRARY:FILEPATH=/usr/lib/libgtkgl.so
 //Single output directory for building all libraries.
 LIBRARY_OUTPUT_PATH:PATH=
 
+//Dependencies for the target
+RenderWindowInteractor_LIB_DEPENDS:STATIC=vtkRendering;vtkGraphics;vtkImaging;vtkIO;vtkFiltering;vtkCommon;
+
 //Location of Tcl library imported from VTK.  This may mean your
 // project is depending on VTK to get this setting.  Consider using
 // FindTCL.cmake.
@@ -187,145 +193,11 @@ TK_LIBRARY:FILEPATH=/usr/lib/libtk.so
 // an installation.
 VTK_DIR:PATH=/home/malat/Kitware/VTKBin
 
+//Wrap VTK classes into the Python language.
+VTK_WRAP_PYTHON:BOOL=ON
+
 //Value Computed by CMake
 wxVTKSample_BINARY_DIR:STATIC=/home/malat/wxVTK/bin
 
 //Value Computed by CMake
 wxVTKSample_SOURCE_DIR:STATIC=/home/malat/wxVTK
-
-
-########################
-# INTERNAL cache entries
-########################
-
-//Advanced flag for variable: CMAKE_AR
-CMAKE_AR-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_BUILD_TOOL
-CMAKE_BUILD_TOOL-ADVANCED:INTERNAL=1
-//What is the target build tool cmake is generating for.
-CMAKE_BUILD_TOOL:INTERNAL=/usr/bin/gmake
-//This is the directory where this CMakeCahe.txt was created
-CMAKE_CACHEFILE_DIR:INTERNAL=/home/malat/wxVTK/bin
-//Major version of cmake used to create the current loaded cache
-//
-CMAKE_CACHE_MAJOR_VERSION:INTERNAL=1
-//Minor version of cmake used to create the current loaded cache
-//
-CMAKE_CACHE_MINOR_VERSION:INTERNAL=7
-//Major version of cmake used to create the current loaded cache
-//
-CMAKE_CACHE_RELEASE_VERSION:INTERNAL=development
-//Path to CMake executable.
-CMAKE_COMMAND:INTERNAL=/home/malat/Kitware/CMakeBin/Bin/cmake
-//Advanced flag for variable: CMAKE_CXX_COMPILER
-CMAKE_CXX_COMPILER-ADVANCED:INTERNAL=1
-//Result of TRY_COMPILE
-CMAKE_CXX_COMPILER_WORKS:INTERNAL=TRUE
-//Advanced flag for variable: CMAKE_CXX_FLAGS
-CMAKE_CXX_FLAGS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_CXX_FLAGS_DEBUG
-CMAKE_CXX_FLAGS_DEBUG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_CXX_FLAGS_MINSIZEREL
-CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_CXX_FLAGS_RELEASE
-CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
-CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_C_COMPILER
-CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
-//Result of TRY_COMPILE
-CMAKE_C_COMPILER_WORKS:INTERNAL=TRUE
-//Advanced flag for variable: CMAKE_C_FLAGS
-CMAKE_C_FLAGS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_C_FLAGS_DEBUG
-CMAKE_C_FLAGS_DEBUG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_C_FLAGS_MINSIZEREL
-CMAKE_C_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_C_FLAGS_RELEASE
-CMAKE_C_FLAGS_RELEASE-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_C_FLAGS_RELWITHDEBINFO
-CMAKE_C_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//Path to cache edit program executable.
-CMAKE_EDIT_COMMAND:INTERNAL=/home/malat/Kitware/CMakeBin/Bin/ccmake
-//Advanced flag for variable: CMAKE_EXE_LINKER_FLAGS
-CMAKE_EXE_LINKER_FLAGS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_EXE_LINKER_FLAGS_DEBUG
-CMAKE_EXE_LINKER_FLAGS_DEBUG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_EXE_LINKER_FLAGS_MINSIZEREL
-//
-CMAKE_EXE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_EXE_LINKER_FLAGS_RELEASE
-CMAKE_EXE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO
-//
-CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//Name of generator.
-CMAKE_GENERATOR:INTERNAL=Unix Makefiles
-//Start directory with the top level CMakeLists.txt file for this
-// project
-CMAKE_HOME_DIRECTORY:INTERNAL=/home/malat/wxVTK
-//Advanced flag for variable: CMAKE_MODULE_LINKER_FLAGS
-CMAKE_MODULE_LINKER_FLAGS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_MODULE_LINKER_FLAGS_DEBUG
-CMAKE_MODULE_LINKER_FLAGS_DEBUG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL
-//
-CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_MODULE_LINKER_FLAGS_RELEASE
-//
-CMAKE_MODULE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO
-//
-CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_RANLIB
-CMAKE_RANLIB-ADVANCED:INTERNAL=1
-//Path to CMake installation.
-CMAKE_ROOT:INTERNAL=/home/malat/Kitware/CMake
-//Advanced flag for variable: CMAKE_SHARED_LINKER_FLAGS
-CMAKE_SHARED_LINKER_FLAGS-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_SHARED_LINKER_FLAGS_DEBUG
-CMAKE_SHARED_LINKER_FLAGS_DEBUG-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL
-//
-CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_SHARED_LINKER_FLAGS_RELEASE
-//
-CMAKE_SHARED_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO
-//
-CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_SKIP_RPATH
-CMAKE_SKIP_RPATH-ADVANCED:INTERNAL=1
-//uname command
-CMAKE_UNAME:INTERNAL=/bin/uname
-//Advanced flag for variable: CMAKE_VERBOSE_MAKEFILE
-CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
-//Advanced flag for variable: CMAKE_WX_CXX_FLAGS
-CMAKE_WX_CXX_FLAGS-ADVANCED:INTERNAL=1
-//Result of TRY_COMPILE
-COMPILE_OK:INTERNAL=TRUE
-//Advanced flag for variable: GTK_glib_INCLUDE_PATH
-GTK_glib_INCLUDE_PATH-ADVANCED:INTERNAL=1
-//Advanced flag for variable: GTK_glib_LIBRARY
-GTK_glib_LIBRARY-ADVANCED:INTERNAL=1
-//Advanced flag for variable: GTK_glibconfig_INCLUDE_PATH
-GTK_glibconfig_INCLUDE_PATH-ADVANCED:INTERNAL=1
-//Advanced flag for variable: GTK_gtk_INCLUDE_PATH
-GTK_gtk_INCLUDE_PATH-ADVANCED:INTERNAL=1
-//Advanced flag for variable: GTK_gtk_LIBRARY
-GTK_gtk_LIBRARY-ADVANCED:INTERNAL=1
-//Advanced flag for variable: GTK_gtkgl_INCLUDE_PATH
-GTK_gtkgl_INCLUDE_PATH-ADVANCED:INTERNAL=1
-//Advanced flag for variable: GTK_gtkgl_LIBRARY
-GTK_gtkgl_LIBRARY-ADVANCED:INTERNAL=1
-//Path to an executable
-Sample_gtk_CMAKE_PATH:INTERNAL=/home/malat/wxVTK/bin
-//Path to an executable
-SplitSample_gtk_CMAKE_PATH:INTERNAL=/home/malat/wxVTK/bin
-//Advanced flag for variable: TCL_LIBRARY
-TCL_LIBRARY-ADVANCED:INTERNAL=1
-//Advanced flag for variable: TK_LIBRARY
-TK_LIBRARY-ADVANCED:INTERNAL=1
-//Advanced flag for variable: WXWINDOWS_INCLUDE_PATH
-WXWINDOWS_INCLUDE_PATH-ADVANCED:INTERNAL=1
-
