@@ -150,6 +150,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #endif // wxUSE_STATUSBAR
 
     m_pVTKWindow = new wxVTKRenderWindowInteractor(this, MY_VTK_WINDOW);
+    //turn on mouse grabbing if possible
     m_pVTKWindow->UseCaptureMouseOn();
     ConstructVTK();
     ConfigureVTK();
@@ -158,7 +159,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 MyFrame::~MyFrame()
 {
   if(m_pVTKWindow) m_pVTKWindow->Delete();
-  //delete m_pVTKWindow;
   DestroyVTK();
 }
 

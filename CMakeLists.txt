@@ -11,7 +11,10 @@ ELSE(VTK_FOUND)
   MESSAGE(FATAL_ERROR "Cannot build without VTK.  Please set VTK_DIR.")
 ENDIF (VTK_FOUND)
 
-FIND_PACKAGE(wxWindows)
+#FIND_PACKAGE(wxWindows)
+#I don't like the way we should you use wxWindow+CMake
+#thus I provide my own one
+INCLUDE(${wxVTKSample_SOURCE_DIR}/src/FindwxWindows.cmake)
 IF ( CMAKE_WX_CAN_COMPILE )
 
 IF(WXWINDOWS_INCLUDE_PATH)
@@ -56,7 +59,10 @@ IF(WIN32)
 
 ELSE(WIN32)
 
-  FIND_PACKAGE(GTK)
+  #FIND_PACKAGE(GTK)
+  #I don't like also the way CMake search GTK
+  #provide my own:
+  INCLUDE(${wxVTKSample_SOURCE_DIR}/src/FindGTK.cmake)
   IF(GTK_FOUND)
     SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
   ENDIF(GTK_FOUND)

@@ -73,13 +73,7 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor()
       , RenderWhenDisabled(1)
       , UseCaptureMouse(0)
 {
-  //The following is right...
-  //this was the only way I found to deal with smart pointer
-  //any improvement smarter is welcome:
-  vtkRenderWindow *rwtemp = vtkRenderWindow::New();
-  vtkRenderWindowInteractor::SetRenderWindow(rwtemp);
-  if(rwtemp) rwtemp->Delete();
-
+  vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow::New());
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
@@ -99,13 +93,8 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
       , RenderWhenDisabled(1)
       , UseCaptureMouse(0)
 {
-
-  //The following is right...
-  //this was the only way I found to deal with smart pointer
-  //any improvement smarter is welcome:
-  vtkRenderWindow *rwtemp = vtkRenderWindow::New();
-  vtkRenderWindowInteractor::SetRenderWindow(rwtemp);
-  if(rwtemp) rwtemp->Delete();
+  vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow::New());
+  this->RenderWindow->Delete();
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
