@@ -53,15 +53,15 @@
 #define ID_wxVTKRenderWindowInteractor_TIMER 1001
 
 // vtk includes
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderWindow.h>
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderWindow.h"
 //This is needed for vtk 3.1 :
 #ifndef VTK_MAJOR_VERSION
-#include <vtkVersion.h>
+#include "vtkVersion.h"
 #endif
 
 //For more info on this class please go to:
-//http://www.creatis.insa-lyon.fr/~malaterre/wxVTK/
+//http://wxvtk.sf.net
 //This hack is for some buggy wxGTK version:
 #if wxCHECK_VERSION(2, 3, 2) && !wxCHECK_VERSION(2, 4, 1) && defined(__WXGTK__)
 #  define WX_USE_X_CAPTURE 0
@@ -80,7 +80,7 @@
 #endif //__WXGTK__
 
 //Motif version (renamed into wxX11 for wxWindow 2.4 and newer)
-#if defined(__WXMOTIF__) || defined(__WXMAC__)
+#if defined(__WXMOTIF__) 
 # error This GUI is not supported by wxVTKRenderWindowInteractor for now
 #endif
 
@@ -91,11 +91,11 @@ class wxTimerEvent;
 class wxKeyEvent;
 class wxSizeEvent;
 
-#ifdef __WXMSW__
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtual public vtkRenderWindowInteractor
-#else
+#ifdef __WXGTK__
 class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, virtual public vtkRenderWindowInteractor
-#endif
+#else
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtual public vtkRenderWindowInteractor
+#endif //__WXGTK__
 {
   DECLARE_DYNAMIC_CLASS(wxVTKRenderWindowInteractor)
   

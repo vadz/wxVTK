@@ -34,18 +34,18 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 }
 #endif
 
-#ifdef __WXMSW__
-IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxWindow)
-#else
+#ifdef __WXGTK__
 IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxGLCanvas)
-#endif  //__WXMSW__
+#else
+IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxWindow)
+#endif  //__WXGTK__
 
 //---------------------------------------------------------------------------
-#ifdef __WXMSW__
-BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
-#else
+#ifdef __WXGTK__
 BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxGLCanvas)
-#endif //__WXMSW__
+#else
+BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
+#endif //__WXGTK__
   //refresh window by doing a Render
   EVT_PAINT       (wxVTKRenderWindowInteractor::OnPaint)
   EVT_ERASE_BACKGROUND(wxVTKRenderWindowInteractor::OnEraseBackground)
@@ -71,13 +71,13 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxGLCanvas)
   EVT_TIMER       (ID_wxVTKRenderWindowInteractor_TIMER, wxVTKRenderWindowInteractor::OnTimer)
   EVT_SIZE        (wxVTKRenderWindowInteractor::OnSize)
 END_EVENT_TABLE()
-
+  
 //---------------------------------------------------------------------------
-#ifdef __WXMSW__
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow()
-#else
+#ifdef __WXGTK__
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas()
-#endif //__WXMSW__
+#else
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow()
+#endif //__WXGTK__
       , vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
@@ -98,11 +98,11 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
                                                          const wxSize &size,
                                                          long style,
                                                          const wxString &name)
-#ifdef __WXMSW__
-      : wxWindow(parent, id, pos, size, style, name)
-#else
+#ifdef __WXGTK__
       : wxGLCanvas(parent, id, pos, size, style, name)
-#endif
+#else
+      : wxWindow(parent, id, pos, size, style, name)
+#endif //__WXGTK__
       , vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
@@ -119,15 +119,11 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
 {
-/*  if(this->RenderWindow != NULL)
-  {
-    this->RenderWindow->UnRegister(this);
-  }*/
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
 {
-	// we don't make use of the objectfactory, because we're not registered
+  // we don't make use of the objectfactory, because we're not registered
   return new wxVTKRenderWindowInteractor;
 }
 //---------------------------------------------------------------------------
