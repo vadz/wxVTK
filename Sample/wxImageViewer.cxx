@@ -28,6 +28,7 @@
 
 #include "vtkImageViewer2.h"
 #include "vtkImageData.h"
+#include "vtkTesting.h"
 
 // the application icon
 #ifndef __WXMSW__
@@ -180,10 +181,13 @@ void MyFrame::ConstructVTK()
 
 void MyFrame::ConfigureVTK()
 {
+  char* fname = vtkTestUtilities::ExpandDataFileName(0, 0, "Data/fullhead15.png");
+
   //# Image pipeline
   reader = vtkPNGReader::New();
   reader->SetDataSpacing (0.8, 0.8, 1.5);
-  reader->SetFileName ( "/home/malat/Kitware/VTKData/Data/fullhead15.png");
+  reader->SetFileName ( fname );
+  delete[] fname;
 
   viewer->SetInput ( reader->GetOutput());
   viewer->SetColorWindow ( 150 );

@@ -38,6 +38,7 @@
 #include "vtkRenderer.h"
 #include "vtkVolume16Reader.h"
 #include "vtkImageReslice.h"
+#include "vtkTesting.h"
 
 #include "vtkImageData.h"
 #ifndef vtkFloatingPointType
@@ -189,7 +190,7 @@ void MyFrame::ConfigureVTK()
   // connect the render window and wxVTK window
   vtkRenderWindow* pRenderWindow = m_pVTKWindow->GetRenderWindow();
 
-  char fname[] = "/home/malat/Kitware/VTKData/Data/headsq/quarter";
+  char* fname = vtkTestUtilities::ExpandDataFileName(0, 0, "Data/headsq/quarter");
 
   vtkVolume16Reader* v16 =  vtkVolume16Reader::New();
     v16->SetDataDimensions( 64, 64);
@@ -199,6 +200,7 @@ void MyFrame::ConfigureVTK()
     v16->SetFilePrefix( fname );
     v16->SetDataMask( 0x7fff);
     v16->Update();
+  delete[] fname;
 
   vtkOutlineFilter* outline = vtkOutlineFilter::New();
     outline->SetInput(v16->GetOutput());

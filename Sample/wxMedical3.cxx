@@ -37,6 +37,7 @@
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageActor.h"
+#include "vtkTesting.h"
 
 
 // the application icon
@@ -191,6 +192,8 @@ void MyFrame::ConfigureVTK()
   pRenderWindow->AddRenderer(aRenderer);
 
 
+  char* fname = vtkTestUtilities::ExpandDataFileName(0, 0, "Data/headsq/quarter");
+
   // The following reader is used to read a series of 2D slices (images)
   // that compose the volume. The slice dimensions are set, and the
   // pixel spacing. The data Endianness must also be specified. The
@@ -200,9 +203,10 @@ void MyFrame::ConfigureVTK()
   vtkVolume16Reader *v16 = vtkVolume16Reader::New();
     v16->SetDataDimensions(64,64);
     v16->SetDataByteOrderToLittleEndian();
-    v16->SetFilePrefix ("/home/malat/Kitware/VTKData/Data/headsq/quarter");
+    v16->SetFilePrefix ( fname );
     v16->SetImageRange(1, 93);
     v16->SetDataSpacing (3.2, 3.2, 1.5);
+  delete[] fname;
 
   // An isosurface, or contour value of 500 is known to correspond to
   // the skin of the patient. Once generated, a vtkPolyDataNormals
