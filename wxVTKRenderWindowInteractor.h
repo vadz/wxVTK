@@ -37,12 +37,23 @@
 #ifndef _wxVTKRenderWindowInteractor_h_
 #define _wxVTKRenderWindowInteractor_h_
 
-// vtk includes
-#include <vtkRenderWindowInteractor.h>
-#include <vtkRenderWindow.h>
+// For compilers that support precompilation, includes "wx/wx.h".
+#include "wx/wxprec.h"
+
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
+
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
 
 #include "wx/timer.h"
 #define ID_wxVTKRenderWindowInteractor_TIMER 1001
+
+// vtk includes
+#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderWindow.h>
 
 // Use wxGLCanvas as base class instead of wxWindow.
 // This is sometimes necessary under wxGTK or the image is blank.
@@ -53,11 +64,33 @@
 #if wxUSE_GLCANVAS
 #ifdef __WXMSW__
 #define WX_BASE_CLASS wxWindow
+#define WX_USE_X_CAPTURE 1
 #else
 #include <wx/glcanvas.h>
 #define WX_BASE_CLASS wxGLCanvas
 #endif //__WXMSW__
 #endif //wxUSE_GLCANVAS
+
+
+#ifdef __WXGTK__
+#  include "gdk/gdkprivate.h"
+#  include <wx/gtk/win_gtk.h>
+// Keep capturing mouse after mouse is dragged out of window
+// (in wxGTK 2.3.2 there is a bug that keeps this from working,
+// but it is only relevant in wxGTK if there are multiple windows)
+#if wxCHECK_VERSION(2, 3, 2)
+#  define WX_USE_X_CAPTURE  0
+#else // replacement code for old version
+#  define WX_USE_X_CAPTURE 1
+#endif //wxCHECK_VERSION(2, 3, 2)
+#endif //__WXGTK__
+
+
+//If you are using wxGTK 2.3.2 or upper you'll have to read this first:
+//http://lists.wxwindows.org/cgi-bin/ezmlm-cgi?8:msn:35600:hanbmbolbbdkidoopbai
+//After making the change you'll be able to use WX_USE_X_CAPTURE = 1
+//Just uncomment the following line:
+//#define WX_USE_X_CAPTURE 1
 
 // wx forward declarations
 class wxPaintEvent;
@@ -116,6 +149,13 @@ class wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRend
     vtkBooleanMacro(Stereo,int);
     virtual void SetStereo(int capable);
 
+    // Description:
+    // As CaptureMouse could be a problem sometimes on a window box
+    // This method allow to set or not the CaptureMouse.
+    // This method actually will works only if WX_USE_X_CAPTURE was set to 1
+    vtkSetMacro(UseCaptureMouse,int);
+    vtkBooleanMacro(UseCaptureMouse,int);
+
   protected:
     wxTimer timer;
     int ActiveButton;
@@ -124,9 +164,10 @@ class wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRend
     int Stereo;
     
   private:
-    long handle;
+    long Handle;
     bool Created;
     int RenderWhenDisabled;
+    int UseCaptureMouse;
 
     DECLARE_EVENT_TABLE()
 };
