@@ -8,8 +8,8 @@
 # GTK_VERSION_1     - Use this Version
 # GTK_FOUND         - If false, don't try to use GTK
 
-OPTION(GTK_VERSION_2    "Use GTK version 2.x"   1)
-OPTION(GTK_VERSION_1    "Use GTK version 1.x"   0)
+OPTION(GTK_VERSION_1    "Use GTK version 1.x"   1)
+OPTION(GTK_VERSION_2    "Use GTK version 2.x"   2)
 
 # Exclusion between the two version
 

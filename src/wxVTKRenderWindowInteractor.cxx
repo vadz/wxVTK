@@ -34,10 +34,18 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 }
 #endif
 
-IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, WX_BASE_CLASS)
+#ifdef __WXMSW__
+IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxWindow)
+#else
+IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxGLCanvas)
+#endif  //__WXMSW__
 
 //---------------------------------------------------------------------------
-BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, WX_BASE_CLASS)
+#ifdef __WXMSW__
+BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
+#else
+BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxGLCanvas)
+#endif //__WXMSW__
   //refresh window by doing a Render
   EVT_PAINT       (wxVTKRenderWindowInteractor::OnPaint)
   EVT_ERASE_BACKGROUND(wxVTKRenderWindowInteractor::OnEraseBackground)
@@ -61,8 +69,11 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, WX_BASE_CLASS)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------------------------
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor()
-      : WX_BASE_CLASS()
+#ifdef __WXMSW__
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow()
+#else
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas()
+#endif //__WXMSW__
       , vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
@@ -74,6 +85,7 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor()
       , UseCaptureMouse(0)
 {
   vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow::New());
+  this->RenderWindow->Delete();
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
@@ -82,7 +94,11 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
                                                          const wxSize &size,
                                                          long style,
                                                          const wxString &name)
-      : WX_BASE_CLASS(parent, id, pos, size, style, name)
+#ifdef __WXMSW__
+      : wxWindow(parent, id, pos, size, style, name)
+#else
+      : wxGLCanvas(parent, id, pos, size, style, name)
+#endif
       , vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
@@ -208,7 +224,8 @@ long wxVTKRenderWindowInteractor::GetHandle()
 #ifdef __WXGTK__
     if (m_wxwindow) {
 #ifdef __WXGTK20__
-        handle_tmp = (long) GDK_WINDOW_XWINDOW(GTK_PIZZA(m_wxwindow)->bin_window);
+        handle_tmp = (long) GDK_WINDOW_XWINDOW(GTK_PIZZA(m_wxwindow)->
+          bin_window);
 #else
         GdkWindowPrivate* bwin = reinterpret_cast<GdkWindowPrivate*>(
           GTK_PIZZA(m_wxwindow)->bin_window);
@@ -249,6 +266,11 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
 {
+  //FIXME: this is also necessary to update the context on MSW for a change !
+//#ifdef __WXMSW__
+  //WX_BASE_CLASS::OnSize(event);
+//#endif
+
   int w, h;
   GetClientSize(&w, &h);
   UpdateSize(w, h);
@@ -440,7 +462,8 @@ void wxVTKRenderWindowInteractor::OnButtonUp(wxMouseEvent &event)
 {
   //EVT_xxx_DOWN == EVT_xxx_UP - 1
   //This is only needed if two mouse buttons are pressed at the same time.
-  //In wxWindows 2.4 and later: better use of wxMOUSE_BTN_RIGHT or wxEVT_COMMAND_RIGHT_CLICK
+  //In wxWindows 2.4 and later: better use of wxMOUSE_BTN_RIGHT or 
+  //wxEVT_COMMAND_RIGHT_CLICK
   if (!Enabled || (ActiveButton != (event.GetEventType()-1))) 
     {
     return;

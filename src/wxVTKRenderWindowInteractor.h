@@ -37,10 +37,6 @@
 #ifndef _wxVTKRenderWindowInteractor_h_
 #define _wxVTKRenderWindowInteractor_h_
 
-//#ifdef _MSC_VER
-//#  pragma warning(disable : 4355)
-//#endif
-
 // For compilers that support precompilation, includes "wx/wx.h".
 #include "wx/wxprec.h"
 
@@ -66,40 +62,26 @@
 
 //For more info on this class please go to:
 //http://www.creatis.insa-lyon.fr/~malaterre/wxVTK/
-#ifdef __WXMSW__
-# define WX_BASE_CLASS wxWindow
-# define WX_USE_X_CAPTURE 1
-#endif  //__WXMSW__
-
-//GTK 1.x & 2.x version
-#ifdef __WXGTK__
-#  include "gdk/gdkprivate.h"
-#  include <wx/gtk/win_gtk.h>
-// Keep capturing mouse after mouse is dragged out of window
-// (in wxGTK 2.3.2 there is a bug that keeps this from working,
-// but it is only relevant in wxGTK if there are multiple windows)
-#if wxCHECK_VERSION(2, 3, 2)
-#  define WX_USE_X_CAPTURE  0
-#else // replacement code for old version
+//This hack is for some buggy wxGTK version:
+#if wxCHECK_VERSION(2, 3, 2) && !wxCHECK_VERSION(2, 4, 1) && defined(__WXGTK__)
+#  define WX_USE_X_CAPTURE 0
+#else
 #  define WX_USE_X_CAPTURE 1
-#endif //wxCHECK_VERSION(2, 3, 2)
-# if wxUSE_GLCANVAS
-#   include <wx/glcanvas.h>
-#   define WX_BASE_CLASS wxGLCanvas
-# else
-#   warning "problem of wxGLCanvas"
-# endif //wxUSE_GLCANVAS
-#endif //__WXGTK__
-
-//No mouse grab hack is needed with GTK 2.x
-//wxGLCanvas is needed to handle GTK 2.x double buffering interfering with OpenGL one
-#ifdef __WXGTK20__
-# define WX_USE_X_CAPTURE 0
 #endif
+
+#ifdef __WXGTK__
+#  if wxUSE_GLCANVAS
+#    include "gdk/gdkprivate.h"
+#    include <wx/gtk/win_gtk.h>
+#    include <wx/glcanvas.h>
+#  else
+#    error "problem of wxGLCanvas"
+#  endif //wxUSE_GLCANVAS
+#endif //__WXGTK__
 
 //Motif version (renamed into wxX11 for wxWindow 2.4 and newer)
 #if defined(__WXMOTIF__) || defined(__WXMAC__)
-#error This GUI is not supported by wxVTKRenderWindowInteractor for now
+# error This GUI is not supported by wxVTKRenderWindowInteractor for now
 #endif
 
 // wx forward declarations
@@ -109,7 +91,11 @@ class wxTimerEvent;
 class wxKeyEvent;
 class wxSizeEvent;
 
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public WX_BASE_CLASS, virtual public vtkRenderWindowInteractor
+#ifdef __WXMSW__
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtual public vtkRenderWindowInteractor
+#else
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, virtual public vtkRenderWindowInteractor
+#endif
 {
   DECLARE_DYNAMIC_CLASS(wxVTKRenderWindowInteractor)
   

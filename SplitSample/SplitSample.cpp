@@ -167,7 +167,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
     m_pSashWindowLeft = new wxSashLayoutWindow(this, MY_WINDOW_LEFT, wxDefaultPosition, 
 					       wxSize(size.GetWidth()/2, size.GetHeight()), 
-					       wxNO_BORDER|wxSW_3D);
+					       wxNO_BORDER|wxSW_3D| wxCLIP_CHILDREN);
     m_pSashWindowLeft->SetDefaultSize(wxSize(size.GetWidth()/2, size.GetHeight()));
     m_pSashWindowLeft->SetOrientation(wxLAYOUT_VERTICAL);
     m_pSashWindowLeft->SetAlignment(wxLAYOUT_LEFT);
@@ -175,7 +175,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
     m_pSashWindowRight = new wxSashLayoutWindow(this, MY_WINDOW_RIGHT, wxDefaultPosition,
 						wxSize(size.GetWidth()/2, size.GetHeight()), 
-						wxNO_BORDER|wxSW_3D);
+						wxNO_BORDER|wxSW_3D| wxCLIP_CHILDREN);
     m_pSashWindowRight->SetDefaultSize(wxSize(size.GetWidth()/2, size.GetHeight()));
     m_pSashWindowRight->SetOrientation(wxLAYOUT_VERTICAL);
     m_pSashWindowRight->SetAlignment(wxLAYOUT_LEFT);
