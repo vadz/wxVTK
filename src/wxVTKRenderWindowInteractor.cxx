@@ -40,9 +40,13 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 #endif
 
 // To access objc calls on cocoa
-#if defined(__WXMAC__) && defined(VTK_USE_COCOA)
+#ifdef __WXCOCOA__
+#ifdef VTK_USE_COCOA
 #  include <objc/objc.h>
-#endif //defined(__WXMAC__) && defined(VTK_USE_COCOA)
+#else
+#error Build mismatch you need both wxWidgets and VTK to be configure agains Cocoa to work
+#endif //VTK_USE_COCOA
+#endif //__WXCOCOA__
 
 //For more info on this class please go to:
 //http://wxvtk.sf.net
@@ -241,8 +245,8 @@ long wxVTKRenderWindowInteractor::GetHandle()
     handle_tmp = (long)this->GetHWND();
 #endif //__WXMSW__
 
-#ifdef __WXMAC__
-#ifdef VTK_USE_COCOA
+//__WXCOCOA__ stands for using the objective-c Cocoa API
+#ifdef __WXCOCOA__
 #if 0
    // I keep the following just in case...
   wxTopLevelWindow* toplevel = dynamic_cast<wxTopLevelWindow*>(
@@ -254,16 +258,16 @@ long wxVTKRenderWindowInteractor::GetHandle()
 #else
 //According to David Elliot I can use:
    handle_tmp = (long)objc_msgSend(GetNSView(), "window");
-#endif
-#endif //VTK_USE_COCOA
-#ifdef VTK_USE_CARBON
+#endif //__WXCOCOA__
+
+//__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
+#ifdef __WXMAC__
 #if wxCHECK_VERSION(2, 5, 2)
    //this function became in wx 2.5.2 : MacGetTopLevelWindowRef()
     handle_tmp = (long)this->MacGetTopLevelWindowRef();
 #else
     handle_tmp = (long)this->MacGetRootWindow();
 #endif //wxCHECK_VERSION(2, 5, 2)
-#endif //VTK_USE_CARBON
 #endif //__WXMAC__
 
     // Find and return the actual X-Window.
