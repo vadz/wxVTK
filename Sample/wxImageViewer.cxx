@@ -212,7 +212,7 @@ void MyFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
     wxString msg;
-    msg.Printf( _T("This is the about dialog of wx-vtk sample.\n"), wxVERSION_STRING);
+    msg.Printf( _T("This is the about dialog of wx-vtk sample.\n"));
 
     wxMessageBox(msg, "About wx-vtk", wxOK | wxICON_INFORMATION, this);
 }
