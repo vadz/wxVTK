@@ -30,7 +30,7 @@
 #include "vtkImageData.h"
 
 // the application icon
-#if defined(__WXGTK__) || defined(__WXMOTIF__)
+#ifndef __WXMSW__
     #include "mondrian.xpm"
 #endif
 
