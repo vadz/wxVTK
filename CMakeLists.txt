@@ -66,10 +66,12 @@ IF(VTK_USE_X)
   # Is this always true, do we really need gtk all the time ?
 
   #I don't like also the way CMake search GTK, provide my own:
-  #INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK.cmake)
-  #IF(GTK_FOUND)
-  #  SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-  #ENDIF(GTK_FOUND)
+  #  FIND_PACKAGE(GTK)
+  #  #INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK.cmake)
+  #  IF(GTK_FOUND)
+  #    SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+  #  ENDIF(GTK_FOUND)
+  #  INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR})
 
   FIND_PROGRAM(CMAKE_PKG_CONFIG pkg-config ../gtk/bin ../../gtk/bin)
   IF(CMAKE_PKG_CONFIG)
@@ -127,8 +129,8 @@ LINK_LIBRARIES(
   ${WXWINDOWS_LIBRARY}
   )
 
-ADD_EXECUTABLE(Sample ${GUI_EXECUTABLE} ${SRCS_Sample})
-ADD_EXECUTABLE(SplitSample ${GUI_EXECUTABLE} ${SRCS_SplitSample})
+ADD_EXECUTABLE(wxSample ${GUI_EXECUTABLE} ${SRCS_Sample})
+ADD_EXECUTABLE(wxSplitSample ${GUI_EXECUTABLE} ${SRCS_SplitSample})
 
 ADD_EXECUTABLE(wxImagePlaneWidget ${GUI_EXECUTABLE} ${SRCS_ImagePlaneWidget})
 ADD_EXECUTABLE(wxImageViewer ${GUI_EXECUTABLE} ${SRCS_ImageViewer})
