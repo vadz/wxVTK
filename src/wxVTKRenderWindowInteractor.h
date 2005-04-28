@@ -97,13 +97,15 @@ class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtua
                                 const wxString &name = wxPanelNameStr);
 	//vtk ::New()
     static wxVTKRenderWindowInteractor * New();
+    void PrintSelf(ostream& os, vtkIndent indent);
 
-	 //destructor
+	  //destructor
     ~wxVTKRenderWindowInteractor();
 
     // vtkRenderWindowInteractor overrides
     void Initialize();
     void Enable();
+    bool Enable(bool enable);
     void Disable();
     void Start();
     void UpdateSize(int x, int y);
@@ -148,7 +150,7 @@ class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtua
     wxTimer timer;
     int ActiveButton;
     int RenderAllowed;
-    long GetHandle();
+    long GetHandleHack();
     int Stereo;
     
   private:

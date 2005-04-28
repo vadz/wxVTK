@@ -155,9 +155,14 @@ wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::Initialize()
 {
+  int *size = RenderWindow->GetSize();
   // enable everything and start rendering
   Enable();
   RenderWindow->Start();
+
+  // set the size in the render window interactor
+  Size[0] = size[0];
+  Size[1] = size[1];
 
   // this is initialized
   Initialized = 1;
@@ -172,6 +177,15 @@ void wxVTKRenderWindowInteractor::Enable()
   // that's it
   Enabled = 1;
   Modified();
+}
+//---------------------------------------------------------------------------
+bool wxVTKRenderWindowInteractor::Enable(bool enable)
+{
+#ifdef __WXGTK__
+  return wxGLCanvas::Enable(enable);
+#else
+  return wxWindow::Enable(enable);
+#endif
 }
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::Disable()
@@ -197,8 +211,9 @@ void wxVTKRenderWindowInteractor::UpdateSize(int x, int y)
   if( RenderWindow )
   {
     // if the size changed tell render window
-    if (( (x != Size[0]) || (y != Size[1]) ))
+    if ( x != Size[0] || y != Size[1] )
     {
+      // adjust our (vtkRenderWindowInteractor size)
       Size[0] = x;
       Size[1] = y;
       // and our RenderWindow's size
@@ -237,7 +252,7 @@ void wxVTKRenderWindowInteractor::OnTimer(wxTimerEvent& WXUNUSED(event))
 #endif
 }
 //---------------------------------------------------------------------------
-long wxVTKRenderWindowInteractor::GetHandle()
+long wxVTKRenderWindowInteractor::GetHandleHack()
 {
   //helper function to hide the MSW vs GTK stuff
   long handle_tmp = 0;
@@ -304,7 +319,7 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
   //do it here rather than in the cstor: this is safer.
   if(!Handle)
   {
-    Handle = GetHandle();
+    Handle = GetHandleHack();
     RenderWindow->SetWindowId(reinterpret_cast<void *>(Handle));
 #ifdef __WXMSW__
     RenderWindow->SetParentId(reinterpret_cast<void *>(this->GetParent()->GetHWND()));
@@ -322,10 +337,6 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
 {
-  //this is also necessary to update the context on MSW 
-#ifdef __WXMSW__
-  wxWindow::OnSize(event); //wxNO_FULL_REPAINT_ON_RESIZE ?? 
-#endif
   int w, h;
   GetClientSize(&w, &h);
   UpdateSize(w, h);
@@ -588,17 +599,17 @@ void wxVTKRenderWindowInteractor::Render()
 
   if (RenderAllowed)
     {
-    if(Handle && (Handle == GetHandle()) )
+    if(Handle && (Handle == GetHandleHack()) )
       {
       RenderWindow->Render();
       }
 #if (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 2)
-    else if(GetHandle())
+    else if(GetHandleHack())
       {
       //this means the user has reparented us; let's adapt to the
       //new situation by doing the WindowRemap dance
       //store the new situation
-      Handle = GetHandle();
+      Handle = GetHandleHack();
       RenderWindow->SetNextWindowId(reinterpret_cast<void *>(Handle));
       RenderWindow->WindowRemap();
       RenderWindow->Render();
@@ -641,4 +652,12 @@ void wxVTKRenderWindowInteractor::SetStereo(int capable)
     RenderWindow->SetStereoTypeToCrystalEyes();
     Modified();
     }
+}
+
+//---------------------------------------------------------------------------
+//
+//
+void wxVTKRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }
