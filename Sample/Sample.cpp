@@ -100,7 +100,7 @@ IMPLEMENT_APP(MyApp)
 bool MyApp::OnInit()
 {
     // create the main application window
-    MyFrame *frame = new MyFrame("wxWindows-VTK App",
+    MyFrame *frame = new MyFrame(_T("wxWindows-VTK App"),
                                  wxPoint(50, 50), wxSize(450, 340));
 
     // and show it (the frames, unlike simple controls, are not shown when
@@ -127,18 +127,18 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     SetIcon(wxICON(mondrian));
 
     // create a menu bar
-    wxMenu *menuFile = new wxMenu("", wxMENU_TEAROFF);
+    wxMenu *menuFile = new wxMenu(_T(""), wxMENU_TEAROFF);
 
     // the "About" item should be in the help menu
     wxMenu *helpMenu = new wxMenu;
-    helpMenu->Append(Minimal_About, "&About...\tCtrl-A", "Show about dialog");
+    helpMenu->Append(Minimal_About, _T("&About...\tCtrl-A"), _T("Show about dialog"));
 
-    menuFile->Append(Minimal_Quit, "E&xit\tAlt-X", "Quit this program");
+    menuFile->Append(Minimal_Quit, _T("E&xit\tAlt-X"), _T("Quit this program"));
 
     // now append the freshly created menu to the menu bar...
     wxMenuBar *menuBar = new wxMenuBar();
-    menuBar->Append(menuFile, "&File");
-    menuBar->Append(helpMenu, "&Help");
+    menuBar->Append(menuFile, _T("&File"));
+    menuBar->Append(helpMenu, _T("&Help"));
 
     // ... and attach this menu bar to the frame
     SetMenuBar(menuBar);
@@ -146,7 +146,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 #if wxUSE_STATUSBAR
     // create a status bar just for fun (by default with 1 pane only)
     CreateStatusBar(2);
-    SetStatusText("Drag the mouse here! (wxWindows 2.4.0)");
+    SetStatusText(_T("Drag the mouse here! (wxWindows 2.4.0)"));
 #endif // wxUSE_STATUSBAR
 
     m_pVTKWindow = new wxVTKRenderWindowInteractor(this, MY_VTK_WINDOW);
@@ -221,5 +221,5 @@ void MyFrame::OnAbout(wxCommandEvent& WXUNUSED(event))
     wxString msg;
     msg.Printf( _T("This is the about dialog of wx-vtk sample.\n"));
 
-    wxMessageBox(msg, "About wx-vtk", wxOK | wxICON_INFORMATION, this);
+    wxMessageBox(msg, _T("About wx-vtk"), wxOK | wxICON_INFORMATION, this);
 }
