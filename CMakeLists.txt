@@ -120,6 +120,9 @@ SET(SRCS_Medical3
   src/wxVTKRenderWindowInteractor.cxx
   )
 
+IF(NOT VTK_USE_RENDERING)
+  MESSAGE(FATAL_ERROR "Cannot build wxVTK without vtkRendering (vtkWidgets)")
+ENDIF(NOT VTK_USE_RENDERING)
 LINK_LIBRARIES(
   vtkIO
   vtkHybrid
@@ -128,6 +131,10 @@ LINK_LIBRARIES(
   vtkRendering
   ${WXWINDOWS_LIBRARY}
   )
+IF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
+LINK_LIBRARIES( vtkWidgets )
+ENDIF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
+
 
 ADD_EXECUTABLE(wxSample ${GUI_EXECUTABLE} ${SRCS_Sample})
 ADD_EXECUTABLE(wxSplitSample ${GUI_EXECUTABLE} ${SRCS_SplitSample})
