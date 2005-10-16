@@ -258,34 +258,17 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
   long handle_tmp = 0;
 
 #ifdef __WXMSW__
-    handle_tmp = (long)this->GetHWND();
+    handle_tmp = (long)this->GetHandle();
 #endif //__WXMSW__
 
 //__WXCOCOA__ stands for using the objective-c Cocoa API
 #ifdef __WXCOCOA__
-#if 0
-   // I keep the following just in case...
-  wxTopLevelWindow* toplevel = dynamic_cast<wxTopLevelWindow*>(
-    wxGetTopLevelParent( this ) ) ;
-  if (toplevel != NULL )
-  {
-    handle_tmp = (long)toplevel->GetNSWindow();
-  }
-#else
-//According to David Elliot I can use:
-   //handle_tmp = (long)objc_msgSend(GetNSView(), "window");
-   handle_tmp = (long)[GetNSView() window];
-#endif
+   handle_tmp = (long)this->GetHandle();
 #endif //__WXCOCOA__
 
 //__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
 #ifdef __WXMAC__
-#if wxCHECK_VERSION(2, 5, 2)
-   //this function became in wx 2.5.2 : MacGetTopLevelWindowRef()
-    handle_tmp = (long)this->MacGetTopLevelWindowRef();
-#else
-    handle_tmp = (long)this->MacGetRootWindow();
-#endif //wxCHECK_VERSION(2, 5, 2)
+    handle_tmp = (long)this->GetHandle();
 #endif //__WXMAC__
 
     // Find and return the actual X-Window.
