@@ -119,7 +119,7 @@ Q7. Which VTK version is supported ?
 Q8. Which wxWidgets version is supported ?
     wxWindows 2.4.2 and wxWidgets 2.6.2 are the two only tested wx version tested. Some other could work but see web page about broken 2.4.0 and 2.4.1
 
-Q9. I am getting some very weird linking errors, what should I do:
+Q9. I am getting some very weird linking errors on Mac and wx 2.6.2, what should I do:
     Building executable /Users/mathieu/Projects/Write/wxVTK-carbon/wxImagePlaneWidget.app/Contents/MacOS/wxImagePlaneWidget...
     ld: src/wxVTKRenderWindowInteractor.o illegal reference to symbol: _wxEVT_CHAR defined in indirectly referenced dynamic library /Users/mathieu/Projects/wxWidgets-2.6.2/install-carbon/lib/libwx_mac_core-2.6.0.dylib
     ld: Sample/wxImagePlaneWidget.o illegal reference to symbol: wxAppConsole::HandleEvent(wxEvtHandler*, void (wxEvtHandler::*)(wxEvent&), wxEvent&) const defined in indirectly referenced dynamic library /Users/mathieu/Projects/wxWidgets-2.6.2/install-carbon/lib/libwx_base_carbon-2.6.0.dylib
@@ -133,3 +133,13 @@ Q9. I am getting some very weird linking errors, what should I do:
     and
     $ ../configure --with-mac --disable-compat24 --prefix=/Users/mathieu/Projects/wxWidgets-2.6.2/install-carbon --enable-monolithic
 
+Q10. I am getting some very weird linking errors on Linux/gcc4 and wx 2.4.2, what should I do:
+     ...gtk2/lib/libwx_gtk2-2.4.so: undefined reference to `wxwxListStringNode::~wxwxListStringNode()'
+     ...gtk2/lib/libwx_gtk2-2.4.so: undefined reference to `wxwxMenuItemListNode::~wxwxMenuItemListNode()'
+     ...gtk2/lib/libwx_gtk2-2.4.so: undefined reference to `wxwxMenuItemListNode::~wxwxMenuItemListNode()'
+     ...gtk2/lib/libwx_gtk2-2.4.so: undefined reference to `vtable for wxFileProto'
+     ...gtk2/lib/libwx_gtk2-2.4.so: undefined reference to `wxwxListStringNode::~wxwxListStringNode()'
+
+     Sorry I have no time to investigate, feel free to bug wxWidgets team, but the bug is fairly known:
+     [Bug 154958 - wxGTK is not building properly with gcc4]
+     https://bugzilla.redhat.com/bugzilla/long_list.cgi?buglist=154958
