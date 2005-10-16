@@ -32,7 +32,10 @@ ELSE(WIN32)
       PROPERTIES COMPILE_FLAGS "-ObjC++")
   ENDIF(VTK_USE_COCOA)
   ELSE(APPLE)
-    # Ok X11 for sure
+    # Ok X11 for sure, but just check:
+    IF(NOT VTK_USE_X)
+      MESSAGE(FATAL_ERROR "You need to have VTK_USE_X")
+    ENDIF(NOT VTK_USE_X)
     OPTION(GTK_VERSION_1    "Use GTK version 1.x"   OFF)
     OPTION(GTK_VERSION_2    "Use GTK version 2.x"   OFF)
     # Exclusion between the two version
@@ -49,13 +52,14 @@ ELSE(WIN32)
     IF(GTK_VERSION_2)
       INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK2.cmake)
     ENDIF(GTK_VERSION_2)
+
+    # Now special trick for opengl/wx 
+    SET(WX_USE_GL 1)
   ENDIF(APPLE)
 ENDIF(WIN32)
 
 INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindwxWidgets.cmake)
 
-
-SET( CMAKE_WX_CAN_COMPILE 1)
 IF ( CMAKE_WX_CAN_COMPILE )
 
   ADD_DEFINITIONS( ${GTK_DEFINITIONS} )
@@ -63,43 +67,10 @@ IF ( CMAKE_WX_CAN_COMPILE )
   INCLUDE_DIRECTORIES(${WX_INCLUDE_PATH})
   INCLUDE_DIRECTORIES(${GTK_INCLUDE_PATH})
 
-#Add our own include path
-INCLUDE_DIRECTORIES(
-  ${wxVTKSample_SOURCE_DIR}/src
-  )
-
-
-#-----------------------------------------------------------------------------
-IF(VTK_USE_X)
-  # Is this always true, do we really need gtk all the time ?
-
-  #I don't like also the way CMake search GTK, provide my own:
-  #  FIND_PACKAGE(GTK)
-  #  #INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK.cmake)
-  #  IF(GTK_FOUND)
-  #    SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-  #  ENDIF(GTK_FOUND)
-  #  INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR})
-
-  #  FIND_PROGRAM(CMAKE_PKG_CONFIG pkg-config ../gtk/bin ../../gtk/bin)
-  #  IF(CMAKE_PKG_CONFIG)
-  #    SET(CMAKE_GTK_CXX_FLAGS "`${CMAKE_PKG_CONFIG} --cflags gtk+-2.0`")
-  #    SET(GTK_LIBRARIES "`${CMAKE_PKG_CONFIG} --libs gtk+-2.0`")
-  #    SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-  #  ELSE(CMAKE_PKG_CONFIG)
-  #    FIND_PROGRAM(CMAKE_GTK_CONFIG gtk-config ../gtk/bin ../../gtk/bin)
-  #    IF(CMAKE_GTK_CONFIG)
-  #      SET(CMAKE_GTK_CXX_FLAGS "`${CMAKE_GTK_CONFIG} --cxxflags`")
-  #      SET(GTK_LIBRARIES "`${CMAKE_GTK_CONFIG} --libs`")
-  #      SET(CMAKE_CXX_FLAGS "${CMAKE_GTK_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-  #    ELSE(CMAKE_GTK_CONFIG)
-  #      # DOH ! We need to default to CMake's modules
-  #      FIND_PACKAGE(GTK)
-  #      INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR})
-  #    ENDIF(CMAKE_GTK_CONFIG)
-  #  ENDIF(CMAKE_PKG_CONFIG)
-
-ENDIF(VTK_USE_X)
+  #Add our own include path
+  INCLUDE_DIRECTORIES(
+    ${wxVTKSample_SOURCE_DIR}/src
+    )
 
 
 #-----------------------------------------------------------------------------
