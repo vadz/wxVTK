@@ -102,10 +102,11 @@ Deleting unknown object: wxVTKRenderWindowInteractor
 Q5. What's is this Modules directory ?
     This is mainly for historical reason, when cmake was not so well integrated
     with wxWindows.
+    As of 10/16/2005. CMake does not provide good Find* modules, I am now shipping them.
 
 
 Q6. What are the OS supported ? 
-    I have personnally tested it under Win32 and Linux.
+    I have personally tested it under Win32, Mac(Carbon/Cocoa) and Linux(gtk1, gtk2).
     I have been reported that it works under :
       - Unix, 
       - HP-UX
@@ -113,9 +114,22 @@ Q6. What are the OS supported ?
   
 
 Q7. Which VTK version is supported ?
-    VTK 3.1, VTK 3.2, VTK 4.0, VTK 4.2 and VTK CVS !!
+    VTK 3.1, VTK 3.2, VTK 4.0, VTK 4.2, VTK 4.4, VTK 5.0 and VTK CVS !!
     
+Q8. Which wxWidgets version is supported ?
+    wxWindows 2.4.2 and wxWidgets 2.6.2 are the two only tested wx version tested. Some other could work but see web page about broken 2.4.0 and 2.4.1
 
-Q8. I have a MAcOSX Os, and this piece of code doesn't work !
-    As I don't have a MacOSX, please send me a complete bug report (as much
-    details as you can: mathieu.malaterre@creatis.insa-lyon.fr). Thanks !
+Q9. I am getting some very weird linking errors, what should I do:
+    Building executable /Users/mathieu/Projects/Write/wxVTK-carbon/wxImagePlaneWidget.app/Contents/MacOS/wxImagePlaneWidget...
+    ld: src/wxVTKRenderWindowInteractor.o illegal reference to symbol: _wxEVT_CHAR defined in indirectly referenced dynamic library /Users/mathieu/Projects/wxWidgets-2.6.2/install-carbon/lib/libwx_mac_core-2.6.0.dylib
+    ld: Sample/wxImagePlaneWidget.o illegal reference to symbol: wxAppConsole::HandleEvent(wxEvtHandler*, void (wxEvtHandler::*)(wxEvent&), wxEvent&) const defined in indirectly referenced dynamic library /Users/mathieu/Projects/wxWidgets-2.6.2/install-carbon/lib/libwx_base_carbon-2.6.0.dylib
+    ld: warning suggest use of -bind_at_load, as lazy binding may result in errors or different symbols being used
+    symbol __TIFFBuiltinCODECS used from dynamic library /Users/mathieu/Projects/wxWidgets-2.6.2/install-carbon/lib/libwx_mac_core-2.6.0.dylib(single module) not from earlier dynamic library /Users/mathieu/Dashboards/MyTests/VTK-carbon-gcc/bin/libvtktiff.dylib(tif_codec.o)
+    make[1]: *** [/Users/mathieu/Projects/Write/wxVTK-carbon/wxImagePlaneWidget.app/Contents/MacOS/wxImagePlaneWidget] Error 1
+    make: *** [default_target] Error 2
+
+    -> The only way I found that work, is to build using the option `monolithic`
+    $ ../configure --with-cocoa --disable-compat24 --prefix=/Users/mathieu/Projects/wxWidgets-2.6.2/install-cocoa --enable-monolithic
+    and
+    $ ../configure --with-mac --disable-compat24 --prefix=/Users/mathieu/Projects/wxWidgets-2.6.2/install-carbon --enable-monolithic
+
