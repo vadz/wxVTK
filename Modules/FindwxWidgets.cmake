@@ -7,6 +7,8 @@
 #  CMAKE_WX_CXX_FLAGS        = compiler flags for building wxWindows 
 #  WXWINDOWS_INCLUDE_DIR    = include path of wxWindows
 
+# Grrr: https://bugzilla.redhat.com/bugzilla/long_list.cgi?buglist=154958
+
 IF(WIN32)
 
   SET (WXWINDOWS_POSSIBLE_LIB_PATHS
