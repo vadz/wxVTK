@@ -88,49 +88,10 @@ IF(WIN32)
 
 ELSE(WIN32)
 
-  MACRO(FIND_INCLUDEPATH INPUTPATH)
-    SET(WX_INCLUDE_PATH)
-    FOREACH(EL ${INPUTPATH})
-      STRING(REGEX MATCHALL "-I([^ ]+)" 
-        WX_SEARCH_PATH "${EL}" )
-      STRING(REGEX REPLACE "-I" ";" 
-        WX_SEARCH_PATH
-        ${WX_SEARCH_PATH} )
-      #FOREACH(A ${WX_SEARCH_PATH})
-      #  MESSAGE( ${A})
-      #ENDFOREACH(A)
-      #MESSAGE( ${WX_SEARCH_PATH})
-      SET(WX_INCLUDE_PATH ${WX_SEARCH_PATH} )
-    ENDFOREACH(EL)
-  ENDMACRO(FIND_INCLUDEPATH)
+  #MESSAGE( ${CMAKE_CURRENT_SOURCE_DIR} )
+  INCLUDE( "${CMAKE_CURRENT_SOURCE_DIR}/Modules/UseConfig.cmake")
 
-  MACRO(FIND_LIBPATH)
-    SET(WX_LIBRARIES)
-    FOREACH(EL ${ARGV})
-      #MESSAGE( "EL: ${EL}" )
-      STRING(REGEX MATCHALL "-L([^ ]+)" 
-        WX_SEARCH_DIR "${EL}" )
-      STRING(REGEX REPLACE "-L" "" 
-        WX_SEARCH_DIR
-        ${WX_SEARCH_DIR} )
-      #MESSAGE(${WX_SEARCH_DIR})
-      STRING(REGEX MATCHALL "-l([^ ]+)" 
-        WX_LIBRARY "${EL}" )
-      STRING(REGEX REPLACE "-l" "" 
-        WX_LIBRARY
-        ${WX_LIBRARY} )
-      #MESSAGE(${WX_LIBRARY})
-      FOREACH(LIB ${WX_LIBRARY})
-        FIND_LIBRARY(TEMP_LIB
-          NAMES ${LIB}
-          PATHS ${WX_SEARCH_DIR}
-          )
-        #MESSAGE( "${TEMP_LIB}")
-        SET(WX_LIBRARIES 
-          "${TEMP_LIB};${WX_LIBRARIES}")
-      ENDFOREACH(LIB)
-    ENDFOREACH(EL)
-  ENDMACRO(FIND_LIBPATH)
+
   FIND_PROGRAM(CMAKE_WX_CONFIG wx-config ../wx/bin ../../wx/bin)
   #SET(CMAKE_WX_CXX_FLAGS "`${CMAKE_WX_CONFIG} --cflags`")
   SET(WXWINDOWS_LIBRARY "`${CMAKE_WX_CONFIG} --libs --gl-libs`")

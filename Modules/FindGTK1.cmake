@@ -12,7 +12,10 @@ IF(WIN32)
 ELSE(WIN32)
 
   #Find new pkg-config
-  FIND_PROGRAM(CMAKE_PKG_CONFIG pkg-config ../gtk2/bin ../../gtk2/bin)
+  FIND_PROGRAM(CMAKE_PKG_CONFIG pkg-config 
+    ../gtk2/bin 
+    ../../gtk2/bin
+    )
 
   #if PKG is found
   IF(CMAKE_PKG_CONFIG)
@@ -20,9 +23,6 @@ ELSE(WIN32)
     SET(CMAKE_GTK1_CXX_FLAGS "`${CMAKE_PKG_CONFIG} --cflags gtk`")
     SET(GTK1_LIBRARIES "`${CMAKE_PKG_CONFIG} --libs gtk`")
 
-    #SET(CMAKE_GTK2_CXX_FLAGS "`${CMAKE_PKG_CONFIG} --cflags gtk+-2.0`")
-    #SET(GTK2_LIBRARIES "`${CMAKE_PKG_CONFIG} --libs gtk+-2.0`")
-    
   ELSE(CMAKE_PKG_CONFIG)
     #we were not able to find to, lets try with:
     #old gtk-config
