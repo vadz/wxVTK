@@ -19,76 +19,55 @@ SET (LIBRARY_OUTPUT_PATH ${wxVTKSample_BINARY_DIR}/bin CACHE PATH "Single output
 MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
 
 #-----------------------------------------------------------------------------
-SET(WXWINDOWS_USE_GL 1) 
-#When http://www.cmake.org/pipermail/cmake/2003-September/004263.html
-#will be solved VTK + wxWindows would hopefully fully collaborate  !
-
-OPTION(GTK_VERSION_1    "Use GTK version 1.x"   OFF)
-OPTION(GTK_VERSION_2    "Use GTK version 2.x"   OFF)
-
-
-INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindwxWidgets.cmake)
-
-# Exclusion between the two version
-IF(GTK_VERSION_1 AND GTK_VERSION_2)
-  MESSAGE(FATAL_ERROR "Cannot select both version")
-ENDIF(GTK_VERSION_1 AND GTK_VERSION_2)
-IF(NOT GTK_VERSION_1 AND NOT GTK_VERSION_2)
-  MESSAGE(FATAL_ERROR "Have to select at least one version")
-ENDIF(NOT GTK_VERSION_1 AND NOT GTK_VERSION_2)
-
-IF(GTK_VERSION_1)
-  INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK1.cmake)
-ENDIF(GTK_VERSION_1)
-IF(GTK_VERSION_2)
-  INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK2.cmake)
-ENDIF(GTK_VERSION_2)
-
-SET( CMAKE_WX_CAN_COMPILE 1)
-IF ( CMAKE_WX_CAN_COMPILE )
-
-  #MESSAGE( ${GTK_DEFINITIONS} )
-  ADD_DEFINITIONS( ${GTK_DEFINITIONS} )
-  ADD_DEFINITIONS( ${WX_DEFINITIONS} )
-  #ADD_DEFINITIONS( -DGTK_NO_CHECK_CASTS -D__WXGTK__ -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES)
-  #ADD_DEFINITIONS(-D__WXCOCOA__ -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES -DNO_GCC_PRAGMA)
-  INCLUDE_DIRECTORIES(${WX_INCLUDE_PATH})
-  #MESSAGE("MAT ${GTK_INCLUDE_PATH}")
-  INCLUDE_DIRECTORIES(${GTK_INCLUDE_PATH})
-  #IF(WXWINDOWS_INCLUDE_DIR)
-  #  INCLUDE_DIRECTORIES(${WXWINDOWS_INCLUDE_DIR})
-  ##ELSE(WXWINDOWS_INCLUDE_DIR)
-  ##  #We'll use CMakeWxWindows made by Andy...
-  ##  FIND_PATH(WX_BINARY_PATH UseWX.cmake)
-  ##  SET(USE_BUILT_WX 1)
-  #ENDIF(WXWINDOWS_INCLUDE_DIR)
-
-#include stuff in all cases
-#IF(WX_BINARY_PATH)
-#  INCLUDE(${WX_BINARY_PATH}/UseWX.cmake)
-#ENDIF(WX_BINARY_PATH)
-
-#IF(CMAKE_WX_CXX_FLAGS)
-#  SET(CMAKE_CXX_FLAGS "${CMAKE_WX_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
-#ENDIF(CMAKE_WX_CXX_FLAGS)
-
-#Add our own include path
-INCLUDE_DIRECTORIES(
-  ${wxVTKSample_SOURCE_DIR}/src/
-  )
-
 #-----------------------------------------------------------------------------
+
 IF(WIN32)
   SET(GUI_EXECUTABLE WIN32)
-ENDIF(WIN32)
-IF(APPLE)
+ELSE(WIN32)
+  IF(APPLE)
   SET(GUI_EXECUTABLE MACOSX_BUNDLE)
   IF(VTK_USE_COCOA)
     SET_SOURCE_FILES_PROPERTIES(
       src/wxVTKRenderWindowInteractor.cxx
       PROPERTIES COMPILE_FLAGS "-ObjC++")
   ENDIF(VTK_USE_COCOA)
-ENDIF(APPLE)
+  ELSE(APPLE)
+    # Ok X11 for sure
+    OPTION(GTK_VERSION_1    "Use GTK version 1.x"   OFF)
+    OPTION(GTK_VERSION_2    "Use GTK version 2.x"   OFF)
+    # Exclusion between the two version
+    IF(GTK_VERSION_1 AND GTK_VERSION_2)
+      MESSAGE(FATAL_ERROR "Cannot select both version")
+    ENDIF(GTK_VERSION_1 AND GTK_VERSION_2)
+    IF(NOT GTK_VERSION_1 AND NOT GTK_VERSION_2)
+      MESSAGE(FATAL_ERROR "Have to select at least one version")
+    ENDIF(NOT GTK_VERSION_1 AND NOT GTK_VERSION_2)
+
+    IF(GTK_VERSION_1)
+      INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK1.cmake)
+    ENDIF(GTK_VERSION_1)
+    IF(GTK_VERSION_2)
+      INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK2.cmake)
+    ENDIF(GTK_VERSION_2)
+  ENDIF(APPLE)
+ENDIF(WIN32)
+
+INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindwxWidgets.cmake)
+
+
+SET( CMAKE_WX_CAN_COMPILE 1)
+IF ( CMAKE_WX_CAN_COMPILE )
+
+  ADD_DEFINITIONS( ${GTK_DEFINITIONS} )
+  ADD_DEFINITIONS( ${WX_DEFINITIONS} )
+  INCLUDE_DIRECTORIES(${WX_INCLUDE_PATH})
+  INCLUDE_DIRECTORIES(${GTK_INCLUDE_PATH})
+
+#Add our own include path
+INCLUDE_DIRECTORIES(
+  ${wxVTKSample_SOURCE_DIR}/src
+  )
+
 
 #-----------------------------------------------------------------------------
 IF(VTK_USE_X)
