@@ -11,9 +11,8 @@
     #include "wx/wx.h"
 #endif
 
-    #include "wx/laywin.h"
+#include "wx/laywin.h"
 
-//#include "wxVTKWindow.h"
 #include "wxVTKRenderWindowInteractor.h"
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
@@ -190,9 +189,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 MyFrame::~MyFrame()
 {
+  if(m_pVTKWindow) m_pVTKWindow->Delete();
+  if(m_pAnotherVTKWindow) m_pAnotherVTKWindow->Delete();
   DestroyVTK();
-  m_pVTKWindow->Delete();
-  m_pAnotherVTKWindow->Delete();
 }
 
 void MyFrame::ConstructVTK()
@@ -208,6 +207,8 @@ void MyFrame::ConfigureVTK()
 {
   // connect  render -> render window -> wxVTK window
   pRenderWindow =  m_pVTKWindow->GetRenderWindow();
+
+  // connect renderer and render window and configure render window
   pRenderWindow->AddRenderer(pRenderer);
 
   // connect  render -> render window -> wxVTK window

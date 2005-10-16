@@ -18,7 +18,6 @@
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
-#include "vtkPolyDataReader.h"
 
 // the application icon
 #ifndef __WXMSW__
@@ -181,7 +180,7 @@ void MyFrame::ConfigureVTK()
 
   // initialize cone
   pConeSource->SetResolution(8);
-  
+
   // connect pipeline
   pConeMapper->SetInput(pConeSource->GetOutput());
   pConeActor->SetMapper(pConeMapper);
