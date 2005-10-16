@@ -23,16 +23,20 @@ SET(WXWINDOWS_USE_GL 1)
 #When http://www.cmake.org/pipermail/cmake/2003-September/004263.html
 #will be solved VTK + wxWindows would hopefully fully collaborate  !
 
-OPTION(GTK_VERSION_1    "Use GTK version 1.x"   1)
-OPTION(GTK_VERSION_2    "Use GTK version 2.x"   2)
+OPTION(GTK_VERSION_1    "Use GTK version 1.x"   OFF)
+OPTION(GTK_VERSION_2    "Use GTK version 2.x"   OFF)
 
-# Exclusion between the two version
-
-IF(GTK_VERSION_2)
-  SET(GTK_VERSION_1 0)
-ENDIF(GTK_VERSION_2)
 
 INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindwxWidgets.cmake)
+
+# Exclusion between the two version
+IF(GTK_VERSION_1 AND GTK_VERSION_2)
+  MESSAGE(FATAL_ERROR "Cannot select both version")
+ENDIF(GTK_VERSION_1 AND GTK_VERSION_2)
+IF(NOT GTK_VERSION_1 AND NOT GTK_VERSION_2)
+  MESSAGE(FATAL_ERROR "Have to select at least one version")
+ENDIF(NOT GTK_VERSION_1 AND NOT GTK_VERSION_2)
+
 IF(GTK_VERSION_1)
   INCLUDE(${wxVTKSample_SOURCE_DIR}/Modules/FindGTK1.cmake)
 ENDIF(GTK_VERSION_1)
