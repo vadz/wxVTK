@@ -43,6 +43,7 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 #ifdef __WXCOCOA__
 #ifdef VTK_USE_COCOA
 #import <Cocoa/Cocoa.h>
+// This trick is no longer need in VTK CVS, should get rid of that:
 #define id Id
 #else
 #error Build mismatch you need both wxWidgets and VTK to be configure agains Cocoa to work
@@ -90,7 +91,7 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
 // If we use EVT_KEY_DOWN instead of EVT_CHAR, capital versions
 // of all characters are always returned.  EVT_CHAR also performs
 // other necessary keyboard-dependent translations.
-// EVT_KEY_DOWN    (wxVTKRenderWindowInteractor::OnKeyDown)
+  //EVT_KEY_DOWN    (wxVTKRenderWindowInteractor::OnKeyDown)
   EVT_CHAR        (wxVTKRenderWindowInteractor::OnKeyDown)
   EVT_KEY_UP      (wxVTKRenderWindowInteractor::OnKeyUp)
 #endif
@@ -263,7 +264,16 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
 
 //__WXCOCOA__ stands for using the objective-c Cocoa API
 #ifdef __WXCOCOA__
-   handle_tmp = (long)this->GetHandle();
+   // Here is how to find the NSWindow
+   wxTopLevelWindow* toplevel = dynamic_cast<wxTopLevelWindow*>(
+     wxGetTopLevelParent( this ) );
+   if (toplevel != NULL )    
+   {
+     handle_tmp = (long)toplevel->GetNSWindow();
+   }
+   // The NSView will be deducted from 
+   // [(NSWindow*)Handle contentView]
+   // if only I knew how to write that in c++
 #endif //__WXCOCOA__
 
 //__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
