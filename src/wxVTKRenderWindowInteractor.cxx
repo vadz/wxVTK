@@ -252,7 +252,16 @@ void wxVTKRenderWindowInteractor::OnTimer(wxTimerEvent& WXUNUSED(event))
     InteractorStyle->OnTimer();
 #endif
 }
+
 //---------------------------------------------------------------------------
+// NOTE on implementation:
+// Bad luck you ended up in the only tricky place of this code.
+// A few note, wxWidgets still refuse to provide such convenient method
+// so I have to maintain it myself, eventhough this is completely integrated
+// in wxPython...
+// Anyway if this happen to break for you then compare to a recent version of wxPython
+// and look for the function long wxPyGetWinHandle(wxWindow* win)
+// in wxPython/src/helpers.cpp
 long wxVTKRenderWindowInteractor::GetHandleHack()
 {
   //helper function to hide the MSW vs GTK stuff
