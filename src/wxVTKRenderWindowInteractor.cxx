@@ -128,7 +128,8 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInte
       , RenderWhenDisabled(1)
       , UseCaptureMouse(0)
 {
-  vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow::New());
+  this->RenderWindow = NULL;
+  this->SetRenderWindow(vtkRenderWindow::New());
   this->RenderWindow->Delete();
 }
 //---------------------------------------------------------------------------
@@ -152,7 +153,8 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
       , RenderWhenDisabled(1)
       , UseCaptureMouse(0)
 {
-  vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow::New());
+  this->RenderWindow = NULL;
+  this->SetRenderWindow(vtkRenderWindow::New());
   this->RenderWindow->Delete();
 }
 //---------------------------------------------------------------------------
@@ -171,7 +173,7 @@ void wxVTKRenderWindowInteractor::Initialize()
   int *size = RenderWindow->GetSize();
   // enable everything and start rendering
   Enable();
-  RenderWindow->Start();
+  //RenderWindow->Start();
 
   // set the size in the render window interactor
   Size[0] = size[0];
@@ -189,6 +191,7 @@ void wxVTKRenderWindowInteractor::Enable()
 
   // that's it
   Enabled = 1;
+  this->SetCurrent();
   Modified();
 }
 //---------------------------------------------------------------------------
@@ -351,7 +354,7 @@ void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent& WXUNUSED(event))
   InvokeEvent(vtkCommand::ConfigureEvent, NULL);
 #endif
   //this will check for Handle
-  Render();
+  //Render();
 }
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::OnMotion(wxMouseEvent &event)
