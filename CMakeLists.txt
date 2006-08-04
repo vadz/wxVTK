@@ -1,4 +1,6 @@
 PROJECT (wxVTKSample)
+# Well technicall you also need:
+# http://cmake.org/Bug/bug.php?op=show&bugid=3582
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
 #TODO: - try the MOTIF version
@@ -23,6 +25,10 @@ ENDIF(UNIX)
 
 # wxWidgets is required to build the project
 FIND_PACKAGE(wxWidgets REQUIRED)
+IF(UNIX)
+  FIND_PACKAGE(GTK REQUIRED)
+  INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR} )
+ENDIF(UNIX)
 
 IF(WXWINDOWS_FOUND)
   INCLUDE( UsewxWidgets )

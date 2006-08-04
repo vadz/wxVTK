@@ -50,6 +50,20 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 #endif //VTK_USE_COCOA
 #endif //__WXCOCOA__
 
+#ifdef __WXGTK__
+#    include "gdk/gdkprivate.h"
+#    include <wx/gtk/win_gtk.h>
+#define GetXWindow(wxwin) (wxwin)->m_wxwindow ? \
+                          GDK_WINDOW_XWINDOW(GTK_PIZZA((wxwin)->m_wxwindow)->bin_window) : \
+                          GDK_WINDOW_XWINDOW((wxwin)->m_widget->window)
+#endif
+
+#ifdef __WXX11__
+#include "wx/x11/privx.h"
+#define GetXWindow(wxwin)   ((Window)(wxwin)->GetHandle())
+#endif
+
+
 //For more info on this class please go to:
 //http://wxvtk.sf.net
 //This hack is for some buggy wxGTK version:
@@ -268,7 +282,7 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
 // __WXMSW__ is for Win32
 //__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
 // __WXGTK__ is for both gtk 1.2.x and gtk 2.x
-#if defined(__WXMSW__) || defined(__WXMAC__) || defined(__WXGTK__)
+#if defined(__WXMSW__) || defined(__WXMAC__)
     handle_tmp = (long)this->GetHandle();
 #endif //__WXMSW__
 
@@ -286,9 +300,14 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
    // if only I knew how to write that in c++
 #endif //__WXCOCOA__
 
-#ifdef __WXMOTIF__
-    handle_tmp = (long)this->GetXWindow();
+    // Find and return the actual X-Window.
+#if defined(__WXGTK__) || defined(__WXX11)
+    return (long)GetXWindow(this);
 #endif
+
+//#ifdef __WXMOTIF__
+//    handle_tmp = (long)this->GetXWindow();
+//#endif
 
   return handle_tmp;
 }
