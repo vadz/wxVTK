@@ -101,11 +101,10 @@ END_EVENT_TABLE()
 
 //---------------------------------------------------------------------------
 #ifdef __WXGTK__
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas()
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInteractor(), wxGLCanvas()
 #else
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow()
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInteractor(), wxWindow()
 #endif //__WXGTK__
-      , vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
       , RenderAllowed(0)
@@ -126,11 +125,10 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
                                                          long style,
                                                          const wxString &name)
 #ifdef __WXGTK__
-      : wxGLCanvas(parent, id, pos, size, style, name)
+      : vtkRenderWindowInteractor(), wxGLCanvas(parent, id, pos, size, style, name)
 #else
-      : wxWindow(parent, id, pos, size, style, name)
+      : vtkRenderWindowInteractor(), wxWindow(parent, id, pos, size, style, name)
 #endif //__WXGTK__
-      , vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
       , RenderAllowed(0)
@@ -267,7 +265,10 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
   //helper function to hide the MSW vs GTK stuff
   long handle_tmp = 0;
 
-#ifdef __WXMSW__
+// __WXMSW__ is for Win32
+//__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
+// __WXGTK__ is for both gtk 1.2.x and gtk 2.x
+#if defined(__WXMSW__) || defined(__WXMAC__) || defined(__WXGTK__)
     handle_tmp = (long)this->GetHandle();
 #endif //__WXMSW__
 
@@ -284,27 +285,6 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
    // [(NSWindow*)Handle contentView]
    // if only I knew how to write that in c++
 #endif //__WXCOCOA__
-
-//__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
-#ifdef __WXMAC__
-    handle_tmp = (long)this->GetHandle();
-#endif //__WXMAC__
-
-    // Find and return the actual X-Window.
-#ifdef __WXGTK__
-    if (m_wxwindow) {
-#ifdef __WXGTK20__
-        handle_tmp = (long) GDK_WINDOW_XWINDOW(GTK_PIZZA(m_wxwindow)->
-          bin_window);
-#else
-        GdkWindowPrivate* bwin = reinterpret_cast<GdkWindowPrivate*>(
-          GTK_PIZZA(m_wxwindow)->bin_window);
-        if (bwin) {
-            handle_tmp = (long)bwin->xwindow;
-        }
-#endif //__WXGTK20__
-    }
-#endif //__WXGTK__
 
 #ifdef __WXMOTIF__
     handle_tmp = (long)this->GetXWindow();
@@ -337,7 +317,7 @@ void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
   event.Skip(false);
 }
 //---------------------------------------------------------------------------
-void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent &event)
+void wxVTKRenderWindowInteractor::OnSize(wxSizeEvent& WXUNUSED(event))
 {
   int w, h;
   GetClientSize(&w, &h);

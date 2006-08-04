@@ -57,8 +57,6 @@
 
 #ifdef __WXGTK__
 #  if wxUSE_GLCANVAS
-#    include "gdk/gdkprivate.h"
-#    include <wx/gtk/win_gtk.h>
 #    include <wx/glcanvas.h>
 #  else
 #    error "problem of wxGLCanvas, you need to build wxWidgets with opengl"
