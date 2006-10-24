@@ -191,7 +191,9 @@ void wxVTKRenderWindowInteractor::Enable()
 
   // that's it
   Enabled = 1;
+#ifdef __WXGTK__
   this->SetCurrent();
+#endif
   Modified();
 }
 //---------------------------------------------------------------------------
