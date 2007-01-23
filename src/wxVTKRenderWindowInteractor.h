@@ -126,6 +126,7 @@ class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtua
 #endif
     void OnTimer(wxTimerEvent &event);
     void OnSize(wxSizeEvent &event);
+    void OnMouseWheel(wxMouseEvent& event);
 
     void Render();
     void SetRenderWhenDisabled(int newValue);

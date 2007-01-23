@@ -102,6 +102,7 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
 #if !(VTK_MAJOR_VERSION == 3 && VTK_MINOR_VERSION == 1)
   EVT_ENTER_WINDOW(wxVTKRenderWindowInteractor::OnEnter)
   EVT_LEAVE_WINDOW(wxVTKRenderWindowInteractor::OnLeave)
+  EVT_MOUSEWHEEL  (wxVTKRenderWindowInteractor::OnMouseWheel)
 // If we use EVT_KEY_DOWN instead of EVT_CHAR, capital versions
 // of all characters are always returned.  EVT_CHAR also performs
 // other necessary keyboard-dependent translations.
@@ -587,6 +588,30 @@ void wxVTKRenderWindowInteractor::OnButtonUp(wxMouseEvent &event)
   ActiveButton = wxEVT_NULL;
 }
 //---------------------------------------------------------------------------
+void wxVTKRenderWindowInteractor::OnMouseWheel(wxMouseEvent& event)
+{
+// Mouse wheel was only added after VTK 4.4 (I think...)
+#if VTK_MAJOR_VERSION == 5 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 2)
+  // new style
+  //Set vtk event information ... The numebr of wheel rotations is stored in
+  //the x varible.  y varible is zero
+  SetEventInformationFlipY(event.GetWheelRotation() / event.GetWheelDelta(), 0, 
+                           event.ControlDown(), event.ShiftDown(), '\0', 0, NULL);
+  if(event.GetWheelRotation() > 0)
+    {
+      //Send event to VTK
+      InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
+    }
+  else
+    {
+      //Send event to VTK
+      InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
+    }
+#endif
+    
+}
+
+//---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::Render()
 {
   RenderAllowed = 1;
@@ -667,3 +692,4 @@ void wxVTKRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+
