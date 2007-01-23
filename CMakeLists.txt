@@ -1,7 +1,7 @@
 PROJECT (wxVTKSample)
 # Well technicall you also need:
 # http://cmake.org/Bug/bug.php?op=show&bugid=3582
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4.4)
 
 #TODO: - try the MOTIF version
 #      - try the MAC version (done !)
@@ -31,20 +31,23 @@ ELSE(WIN32)
     ENDIF(VTK_USE_COCOA)
   ELSE(APPLE)
     # Ok X11 for sure, but just check:
-    IF(NOT VTK_USE_X)   
-      MESSAGE(FATAL_ERROR "You need to have VTK_USE_X")   
+    IF(NOT VTK_USE_X)
+      MESSAGE(FATAL_ERROR "You need to have VTK_USE_X")
     ENDIF(NOT VTK_USE_X)
     FIND_PACKAGE(GTK REQUIRED)
     INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR} )
-    SET(WXWINDOWS_USE_GL 1)
+    # For GTK we need a couple of stuff:
+    # gl: GLCanvas
+    # adv: wxSashLayoutWindow and such...
+    SET( wxWidgets_USE_LIBS gl adv )
   ENDIF(APPLE)
 ENDIF(WIN32)
 
 # wxWidgets is required to build the project
 FIND_PACKAGE(wxWidgets REQUIRED)
 
-IF(WXWINDOWS_FOUND)
-  INCLUDE( UsewxWidgets )
+IF(wxWidgets_FOUND)
+  INCLUDE( ${wxWidgets_USE_FILE} )
 
   #Add our own include path
   INCLUDE_DIRECTORIES(
@@ -83,7 +86,7 @@ IF(NOT VTK_USE_RENDERING)
 ENDIF(NOT VTK_USE_RENDERING)
 LINK_LIBRARIES(
   vtkRendering
-  ${WX_LIBRARIES}
+  ${wxWidgets_LIBRARIES}
   )
 IF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
   LINK_LIBRARIES( vtkWidgets )
@@ -97,8 +100,8 @@ ADD_EXECUTABLE(wxImagePlaneWidget ${GUI_EXECUTABLE} ${SRCS_ImagePlaneWidget})
 ADD_EXECUTABLE(wxImageViewer ${GUI_EXECUTABLE} ${SRCS_ImageViewer})
 ADD_EXECUTABLE(wxMedical3 ${GUI_EXECUTABLE} ${SRCS_Medical3})
 
-ELSE(WXWINDOWS_FOUND)
+ELSE(wxWidgets_FOUND)
 
-  MESSAGE("Cannot find wxWindows libraries and/or header files")
+  MESSAGE("Cannot find wxWidgets libraries and/or header files")
 
-ENDIF(WXWINDOWS_FOUND)
+ENDIF(wxWidgets_FOUND)
