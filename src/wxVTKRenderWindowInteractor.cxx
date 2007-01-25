@@ -51,8 +51,13 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 #endif //__WXCOCOA__
 
 #ifdef __WXGTK__
+#    include <gdk/gdkx.h> // GDK_WINDOW_XWINDOW is found here in wxWidgets 2.8.0
 #    include "gdk/gdkprivate.h"
-#    include <wx/gtk/win_gtk.h>
+#ifdef __WXGTK20__
+#include <wx/gtk/win_gtk.h>
+#else
+#include <wx/gtk1/win_gtk.h>
+#endif
 #define GetXWindow(wxwin) (wxwin)->m_wxwindow ? \
                           GDK_WINDOW_XWINDOW(GTK_PIZZA((wxwin)->m_wxwindow)->bin_window) : \
                           GDK_WINDOW_XWINDOW((wxwin)->m_widget->window)
