@@ -80,14 +80,14 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 
 #define ID_wxVTKRenderWindowInteractor_TIMER 1001
 
-#ifdef __WXGTK__
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
 IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxGLCanvas)
 #else
 IMPLEMENT_DYNAMIC_CLASS(wxVTKRenderWindowInteractor, wxWindow)
 #endif  //__WXGTK__
 
 //---------------------------------------------------------------------------
-#ifdef __WXGTK__
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
 BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxGLCanvas)
 #else
 BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
@@ -120,7 +120,7 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------------------------
-#ifdef __WXGTK__
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInteractor(), wxGLCanvas()
 #else
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInteractor(), wxWindow()
@@ -145,7 +145,7 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
                                                          const wxSize &size,
                                                          long style,
                                                          const wxString &name)
-#ifdef __WXGTK__
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
       : vtkRenderWindowInteractor(), wxGLCanvas(parent, id, pos, size, style, name)
 #else
       : vtkRenderWindowInteractor(), wxWindow(parent, id, pos, size, style, name)
@@ -197,15 +197,15 @@ void wxVTKRenderWindowInteractor::Enable()
 
   // that's it
   Enabled = 1;
-#ifdef __WXGTK__
-  this->SetCurrent();
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
+  SetCurrent();
 #endif
   Modified();
 }
 //---------------------------------------------------------------------------
 bool wxVTKRenderWindowInteractor::Enable(bool enable)
 {
-#ifdef __WXGTK__
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
   return wxGLCanvas::Enable(enable);
 #else
   return wxWindow::Enable(enable);
@@ -226,8 +226,8 @@ void wxVTKRenderWindowInteractor::Disable()
 void wxVTKRenderWindowInteractor::Start()
 {
   // the interactor cannot control the event loop
-  vtkErrorMacro(<<"wxVTKRenderWindowInteractor::Start() \
-    interactor cannot control event loop.");
+  vtkErrorMacro( << "wxVTKRenderWindowInteractor::Start() "
+    "interactor cannot control event loop.");
 }
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::UpdateSize(int x, int y)
@@ -312,7 +312,7 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
 #endif //__WXCOCOA__
 
     // Find and return the actual X-Window.
-#if defined(__WXGTK__) || defined(__WXX11)
+#if defined(__WXGTK__) || defined(__WXX11__)
     return (long)GetXWindow(this);
 #endif
 

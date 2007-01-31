@@ -1,7 +1,7 @@
 PROJECT (wxVTKSample)
 # Well technicall you also need:
 # http://cmake.org/Bug/bug.php?op=show&bugid=3582
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4.5)
 
 #TODO: - try the MOTIF version
 #      - try the MAC version (done !)
@@ -34,11 +34,11 @@ ELSE(WIN32)
     IF(NOT VTK_USE_X)
       MESSAGE(FATAL_ERROR "You need to have VTK_USE_X")
     ENDIF(NOT VTK_USE_X)
-    FIND_PACKAGE(GTK REQUIRED)
-    INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR} )
+    #FIND_PACKAGE(GTK REQUIRED)
+    #INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR} )
     # CMake 2.4.6:
-    #FIND_PACKAGE(PkgConfig REQUIRED)
-    #pkg_check_modules (GTK2 gtk+-2.0)
+    FIND_PACKAGE(PkgConfig REQUIRED)
+    pkg_check_modules (GTK2 gtk+-2.0)
     # For GTK we need a couple of stuff:
     # gl: GLCanvas
     # adv: wxSashLayoutWindow and such...
@@ -55,7 +55,7 @@ IF(wxWidgets_FOUND)
   #Add our own include path
   INCLUDE_DIRECTORIES(
     ${wxVTKSample_SOURCE_DIR}/src
-    #${GTK2_INCLUDE_DIRS}
+    ${GTK2_INCLUDE_DIRS}
     )
 
 
@@ -91,7 +91,7 @@ ENDIF(NOT VTK_USE_RENDERING)
 LINK_LIBRARIES(
   vtkRendering
   ${wxWidgets_LIBRARIES}
-  #${GTK2_LIBRARIES}
+  ${GTK2_LIBRARIES}
   )
 IF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
   LINK_LIBRARIES( vtkWidgets )

@@ -75,7 +75,13 @@ class wxTimerEvent;
 class wxKeyEvent;
 class wxSizeEvent;
 
-#ifdef __WXGTK__
+// Apparently since wxGTK 2.8.0 one can finally use wxWindow (just as in any
+// other port):
+#if (!wxCHECK_VERSION(2, 8, 0))
+#define USE_WXGLCANVAS
+#endif
+
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
 class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, virtual public vtkRenderWindowInteractor
 #else
 class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtual public vtkRenderWindowInteractor
