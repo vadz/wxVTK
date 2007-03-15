@@ -29,6 +29,10 @@
 #  include "vtkInteractorStyle.h"
 #endif
 
+#ifdef __WXMAC__
+#include "vtkCarbonRenderWindow.h"
+#endif
+
 //Keep this for compatibilty reason, this was introduced in wxGTK 2.4.0
 #if (!wxCHECK_VERSION(2, 4, 0))
 wxWindow* wxGetTopLevelParent(wxWindow *win)
@@ -53,10 +57,14 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 #ifdef __WXGTK__
 #    include <gdk/gdkx.h> // GDK_WINDOW_XWINDOW is found here in wxWidgets 2.8.0
 #    include "gdk/gdkprivate.h"
+#if wxCHECK_VERSION(2, 8, 0)
 #ifdef __WXGTK20__
 #include <wx/gtk/win_gtk.h>
 #else
 #include <wx/gtk1/win_gtk.h>
+#endif
+#else
+#include <wx/gtk/win_gtk.h>
 #endif
 #define GetXWindow(wxwin) (wxwin)->m_wxwindow ? \
                           GDK_WINDOW_XWINDOW(GTK_PIZZA((wxwin)->m_wxwindow)->bin_window) : \
@@ -339,6 +347,15 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
   }
   // get vtk to render to the wxWindows
   Render();
+#ifdef __WXMAC__
+  // This solves a problem with repainting after a window resize
+  // See also: http://sourceforge.net/mailarchive/forum.php?thread_id=31690967&forum_id=41789
+  vtkCarbonRenderWindow* rwin = vtkCarbonRenderWindow::SafeDownCast(RenderWindow);
+  if( rwin )
+  {
+    rwin->UpdateGLRegion();
+  }
+#endif
 }
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::OnEraseBackground(wxEraseEvent &event)
