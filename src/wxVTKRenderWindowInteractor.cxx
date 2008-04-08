@@ -184,6 +184,8 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
 {
+  SetRenderWindow(NULL);
+  SetInteractorStyle(NULL);
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
