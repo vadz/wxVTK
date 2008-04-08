@@ -34,20 +34,21 @@ ELSE(WIN32)
     IF(NOT VTK_USE_X)
       MESSAGE(FATAL_ERROR "You need to have VTK_USE_X")
     ENDIF(NOT VTK_USE_X)
-    #FIND_PACKAGE(GTK REQUIRED)
-    #INCLUDE_DIRECTORIES(${GTK_INCLUDE_DIR} )
-    # CMake 2.4.6:
-    FIND_PACKAGE(PkgConfig REQUIRED)
+    # CMake 2.6:
+    # technically those packages are not required since one can still use the Motif/X11 version and not the gtk one:
+    FIND_PACKAGE(PkgConfig)
     pkg_check_modules (GTK2 gtk+-2.0)
-    # For GTK we need a couple of stuff:
-    # gl: GLCanvas
-    # adv: wxSashLayoutWindow and such...
-    SET( wxWidgets_USE_LIBS gl adv )
+    #MESSAGE("${GTK2_INCLUDE_DIRS}")
+    INCLUDE_DIRECTORIES(${GTK2_INCLUDE_DIRS})
+    LINK_LIBRARIES(${GTK2_LIBRARIES})
   ENDIF(APPLE)
 ENDIF(WIN32)
 
 # wxWidgets is required to build the project
-FIND_PACKAGE(wxWidgets REQUIRED)
+# For GTK we need a couple of stuff:
+# gl: GLCanvas
+# adv: wxSashLayoutWindow and such...
+FIND_PACKAGE(wxWidgets COMPONENTS base core gl adv)
 
 IF(wxWidgets_FOUND)
   INCLUDE( ${wxWidgets_USE_FILE} )
@@ -55,7 +56,6 @@ IF(wxWidgets_FOUND)
   #Add our own include path
   INCLUDE_DIRECTORIES(
     ${wxVTKSample_SOURCE_DIR}/src
-    ${GTK2_INCLUDE_DIRS}
     )
 
 
@@ -91,7 +91,6 @@ ENDIF(NOT VTK_USE_RENDERING)
 LINK_LIBRARIES(
   vtkRendering
   ${wxWidgets_LIBRARIES}
-  ${GTK2_LIBRARIES}
   )
 IF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
   LINK_LIBRARIES( vtkWidgets )
