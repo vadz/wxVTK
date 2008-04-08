@@ -28,6 +28,7 @@
 #else
 #  include "vtkInteractorStyle.h"
 #endif
+#include "vtkDebugLeaks.h"
 
 #ifdef __WXMAC__
 #include "vtkCarbonRenderWindow.h"
@@ -127,11 +128,14 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
   EVT_SIZE        (wxVTKRenderWindowInteractor::OnSize)
 END_EVENT_TABLE()
 
+vtkCxxRevisionMacro(wxVTKRenderWindowInteractor, "$Revision$")
+vtkInstantiatorNewMacro(wxVTKRenderWindowInteractor)
+
 //---------------------------------------------------------------------------
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInteractor(), wxGLCanvas()
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas(), vtkRenderWindowInteractor()
 #else
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInteractor(), wxWindow()
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow(), vtkRenderWindowInteractor()
 #endif //__WXGTK__
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
@@ -142,6 +146,9 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : vtkRenderWindowInte
       , RenderWhenDisabled(1)
       , UseCaptureMouse(0)
 {
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("wxVTKRenderWindowInteractor");
+#endif
   this->RenderWindow = NULL;
   this->SetRenderWindow(vtkRenderWindow::New());
   this->RenderWindow->Delete();
@@ -154,9 +161,9 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
                                                          long style,
                                                          const wxString &name)
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-      : vtkRenderWindowInteractor(), wxGLCanvas(parent, id, pos, size, style, name)
+      : wxGLCanvas(parent, id, pos, size, style, name), vtkRenderWindowInteractor()
 #else
-      : vtkRenderWindowInteractor(), wxWindow(parent, id, pos, size, style, name)
+      : wxWindow(parent, id, pos, size, style, name), vtkRenderWindowInteractor()
 #endif //__WXGTK__
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
@@ -167,6 +174,9 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
       , RenderWhenDisabled(1)
       , UseCaptureMouse(0)
 {
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("wxVTKRenderWindowInteractor");
+#endif
   this->RenderWindow = NULL;
   this->SetRenderWindow(vtkRenderWindow::New());
   this->RenderWindow->Delete();

@@ -82,9 +82,9 @@ class wxKeyEvent;
 class wxSizeEvent;
 
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, virtual public vtkRenderWindowInteractor
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, public vtkRenderWindowInteractor
 #else
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtual public vtkRenderWindowInteractor
+class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInteractor
 #endif //__WXGTK__
 {
   DECLARE_DYNAMIC_CLASS(wxVTKRenderWindowInteractor)
@@ -99,7 +99,7 @@ class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, virtua
                                 const wxSize &size = wxDefaultSize,
                                 long style = wxWANTS_CHARS | wxNO_FULL_REPAINT_ON_RESIZE,
                                 const wxString &name = wxPanelNameStr);
-	//vtk ::New()
+    vtkTypeRevisionMacro(wxVTKRenderWindowInteractor,vtkRenderWindowInteractor);
     static wxVTKRenderWindowInteractor * New();
     void PrintSelf(ostream& os, vtkIndent indent);
 
