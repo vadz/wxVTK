@@ -79,7 +79,7 @@ Error executing link.exe.
   In this case you have to add manually in VC++6/Settings/Preprocessor options:
 
       WXUSINGDLL=1
-  Please refer to :http://www.cmake.org/pipermail/cmake/2003-September/004263.html
+  Please refer to: http://www.cmake.org/pipermail/cmake/2003-September/004263.html
   to check if a better solution has been found.
 
 
