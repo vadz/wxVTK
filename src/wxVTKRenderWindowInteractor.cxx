@@ -309,7 +309,7 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
   long handle_tmp = 0;
 
 // __WXMSW__ is for Win32
-//__WXMAX__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
+//__WXMAC__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
 // __WXGTK__ is for both gtk 1.2.x and gtk 2.x
 #if defined(__WXMSW__) || defined(__WXMAC__)
     handle_tmp = (long)this->GetHandle();
