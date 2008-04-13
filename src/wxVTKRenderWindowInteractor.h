@@ -85,9 +85,9 @@ class wxKeyEvent;
 class wxSizeEvent;
 
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxGLCanvas, public vtkRenderWindowInteractor
+class wxVTKRenderWindowInteractor : public wxGLCanvas, public vtkRenderWindowInteractor
 #else
-class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInteractor
+class wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInteractor
 #endif //__WXGTK__
 {
   DECLARE_DYNAMIC_CLASS(wxVTKRenderWindowInteractor)
@@ -132,6 +132,7 @@ class VTK_RENDERING_EXPORT wxVTKRenderWindowInteractor : public wxWindow, public
     void OnLeave(wxMouseEvent &event);
     void OnKeyDown(wxKeyEvent &event);
     void OnKeyUp(wxKeyEvent &event);
+    void OnChar(wxKeyEvent &event);
 #endif
     void OnTimer(wxTimerEvent &event);
     void OnSize(wxSizeEvent &event);
