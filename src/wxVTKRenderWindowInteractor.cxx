@@ -556,12 +556,11 @@ void wxVTKRenderWindowInteractor::OnButtonDown(wxMouseEvent &event)
     }
   ActiveButton = event.GetEventType();
 
-#if defined(__WXMAC__) || defined(__WXMSW__)
     // On Mac (Carbon) and Windows we don't automatically get the focus when
     // you click inside the window
     // we therefore set the focus explicitly
+    // Apparently we need that on linux (GTK) too:
     this->SetFocus();
-#endif
 
 #if VTK_MAJOR_VERSION > 4 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
   SetEventInformationFlipY(event.GetX(), event.GetY(), 
