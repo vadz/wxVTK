@@ -41,6 +41,8 @@ ELSE(WIN32)
     #MESSAGE("${GTK2_INCLUDE_DIRS}")
     INCLUDE_DIRECTORIES(${GTK2_INCLUDE_DIRS})
     LINK_LIBRARIES(${GTK2_LIBRARIES})
+    # Can I require all my user to have the gl lib on linux, even if they do not really need it...
+    SET(WXGLCANVASLIBS "gl")
   ENDIF(APPLE)
 ENDIF(WIN32)
 
@@ -48,7 +50,7 @@ ENDIF(WIN32)
 # For GTK we need a couple of stuff:
 # gl: GLCanvas
 # adv: wxSashLayoutWindow and such...
-FIND_PACKAGE(wxWidgets COMPONENTS base core gl adv)
+FIND_PACKAGE(wxWidgets COMPONENTS base core adv ${WXGLCANVASLIBS})
 
 IF(wxWidgets_FOUND)
   INCLUDE( ${wxWidgets_USE_FILE} )
