@@ -143,3 +143,7 @@ Q10. I am getting some very weird linking errors on Linux/gcc4 and wx 2.4.2, wha
      Sorry I have no time to investigate, feel free to bug wxWidgets team, but the bug is fairly known:
      [Bug 154958 - wxGTK is not building properly with gcc4]
      https://bugzilla.redhat.com/bugzilla/long_list.cgi?buglist=154958
+
+Q11. How do I set /MT for building wxMSW ?
+  According to: http://wiki.wxwidgets.org/Compiling_WxWidgets#wxWidgets_Library_2
+  You need to set the flag to everything single subprojects. Yes you read it right, you are required to have access to the compiler to the target machine (no ssh for example), but you have to *manually* do it (painful).

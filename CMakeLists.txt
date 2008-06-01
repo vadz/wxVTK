@@ -1,7 +1,12 @@
 PROJECT (wxVTKSample)
 # Well technicall you also need:
 # http://cmake.org/Bug/bug.php?op=show&bugid=3582
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4.5)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+if(COMMAND cmake_policy)
+cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
+
 
 #TODO: - try the MOTIF version
 #      - try the MAC version (done !)
@@ -105,6 +110,14 @@ ADD_EXECUTABLE(wxSplitSample ${GUI_EXECUTABLE} ${SRCS_SplitSample})
 ADD_EXECUTABLE(wxImagePlaneWidget ${GUI_EXECUTABLE} ${SRCS_ImagePlaneWidget})
 ADD_EXECUTABLE(wxImageViewer ${GUI_EXECUTABLE} ${SRCS_ImageViewer})
 ADD_EXECUTABLE(wxMedical3 ${GUI_EXECUTABLE} ${SRCS_Medical3})
+
+  INSTALL(TARGETS
+        wxSplitSample wxSample wxImagePlaneWidget wxImageViewer wxMedical3
+	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib/static
+	)
+
 
 ELSE(wxWidgets_FOUND)
 
