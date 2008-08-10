@@ -130,13 +130,14 @@ class wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInter
 #if !(VTK_MAJOR_VERSION == 3 && VTK_MINOR_VERSION == 1)
     void OnEnter(wxMouseEvent &event);
     void OnLeave(wxMouseEvent &event);
+    void OnMouseWheel(wxMouseEvent& event);
+    void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
     void OnKeyDown(wxKeyEvent &event);
     void OnKeyUp(wxKeyEvent &event);
     void OnChar(wxKeyEvent &event);
 #endif
     void OnTimer(wxTimerEvent &event);
     void OnSize(wxSizeEvent &event);
-    void OnMouseWheel(wxMouseEvent& event);
 
     void Render();
     void SetRenderWhenDisabled(int newValue);

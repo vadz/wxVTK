@@ -119,6 +119,7 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
   EVT_ENTER_WINDOW(wxVTKRenderWindowInteractor::OnEnter)
   EVT_LEAVE_WINDOW(wxVTKRenderWindowInteractor::OnLeave)
   EVT_MOUSEWHEEL  (wxVTKRenderWindowInteractor::OnMouseWheel)
+  EVT_MOUSE_CAPTURE_LOST(wxVTKRenderWindowInteractor::OnMouseCaptureLost)
   EVT_KEY_DOWN    (wxVTKRenderWindowInteractor::OnKeyDown)
   EVT_KEY_UP      (wxVTKRenderWindowInteractor::OnKeyUp)
   EVT_CHAR        (wxVTKRenderWindowInteractor::OnChar)
@@ -691,6 +692,21 @@ void wxVTKRenderWindowInteractor::OnMouseWheel(wxMouseEvent& event)
     }
 #endif
     
+}
+
+//---------------------------------------------------------------------------
+void wxVTKRenderWindowInteractor::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
+{
+   if (ActiveButton != wxEVT_NULL)
+   {
+       //Maybe also invoke the button release event here
+   }
+   // Reset ActiveButton so that
+   // 1. we do not process mouse button up events any more,
+   // 2. the next button down event will be processed and call CaptureMouse().
+   // Otherwise ReleaseMouse() will be called
+   // without a previous CaptureMouse().
+   ActiveButton = wxEVT_NULL;
 }
 
 //---------------------------------------------------------------------------
