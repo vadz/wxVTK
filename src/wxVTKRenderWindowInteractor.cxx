@@ -361,6 +361,9 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
   {
     Handle = GetHandleHack();
     RenderWindow->SetWindowId(reinterpret_cast<void *>(Handle));
+// Cocoa
+// this->GetNSView() <-> DisplayId
+// this->GetTopLevel()->GetNSWindow() <-> WindowId
 #ifdef __WXMSW__
     RenderWindow->SetParentId(reinterpret_cast<void *>(this->GetParent()->GetHWND()));
 #endif //__WXMSW__
@@ -674,7 +677,7 @@ void wxVTKRenderWindowInteractor::OnMouseWheel(wxMouseEvent& event)
   // new style
   //Set vtk event information ... The numebr of wheel rotations is stored in
   //the x varible.  y varible is zero
-  SetEventInformationFlipY(event.GetWheelRotation() / event.GetWheelDelta(), 0, 
+  SetEventInformationFlipY(event.GetX() , event.GetY(), 
                            event.ControlDown(), event.ShiftDown(), '\0', 0, NULL);
   if(event.GetWheelRotation() > 0)
     {
