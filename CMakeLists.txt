@@ -114,6 +114,7 @@ ADD_EXECUTABLE(wxMedical3 ${GUI_EXECUTABLE} ${SRCS_Medical3})
   INSTALL(TARGETS
         wxSplitSample wxSample wxImagePlaneWidget wxImageViewer wxMedical3
 	RUNTIME DESTINATION bin
+	BUNDLE DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib/static
 	)
