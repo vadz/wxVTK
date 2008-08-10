@@ -695,6 +695,7 @@ void wxVTKRenderWindowInteractor::OnMouseWheel(wxMouseEvent& event)
 }
 
 //---------------------------------------------------------------------------
+#if wxCHECK_VERSION(2, 8, 0)
 void wxVTKRenderWindowInteractor::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
 {
    if (ActiveButton != wxEVT_NULL)
@@ -708,6 +709,7 @@ void wxVTKRenderWindowInteractor::OnMouseCaptureLost(wxMouseCaptureLostEvent& ev
    // without a previous CaptureMouse().
    ActiveButton = wxEVT_NULL;
 }
+#endif
 
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::Render()
