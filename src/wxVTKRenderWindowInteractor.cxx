@@ -639,6 +639,9 @@ void wxVTKRenderWindowInteractor::OnButtonUp(wxMouseEvent &event)
     return;
     }
 
+  // See report by Shang Mu / Kerry Loux on wxVTK mailing list
+    this->SetFocus();
+
 #if VTK_MAJOR_VERSION > 4 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
   SetEventInformationFlipY(event.GetX(), event.GetY(), 
     event.ControlDown(), event.ShiftDown(), '\0', 0, NULL);
