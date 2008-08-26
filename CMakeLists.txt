@@ -57,6 +57,10 @@ ENDIF(WIN32)
 # adv: wxSashLayoutWindow and such...
 FIND_PACKAGE(wxWidgets COMPONENTS base core adv ${WXGLCANVASLIBS})
 
+# wx is a pain...
+# if you include glcanvas.h it include GL/glu.h ... sigh I have to install glu on my linux box:
+# sudo apt-get install libglu1-mesa-dev
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=493713
 IF(wxWidgets_FOUND)
   INCLUDE( ${wxWidgets_USE_FILE} )
 
@@ -92,6 +96,11 @@ SET(SRCS_Medical3
   src/wxVTKRenderWindowInteractor.cxx
   )
 
+SET(SRCS_VTKNotebook
+  Sample/wxVTKNotebook.cxx
+  src/wxVTKRenderWindowInteractor.cxx
+  )
+
 IF(NOT VTK_USE_RENDERING)
   MESSAGE(FATAL_ERROR "Cannot build wxVTK without vtkRendering (vtkWidgets)")
 ENDIF(NOT VTK_USE_RENDERING)
@@ -110,6 +119,7 @@ ADD_EXECUTABLE(wxSplitSample ${GUI_EXECUTABLE} ${SRCS_SplitSample})
 ADD_EXECUTABLE(wxImagePlaneWidget ${GUI_EXECUTABLE} ${SRCS_ImagePlaneWidget})
 ADD_EXECUTABLE(wxImageViewer ${GUI_EXECUTABLE} ${SRCS_ImageViewer})
 ADD_EXECUTABLE(wxMedical3 ${GUI_EXECUTABLE} ${SRCS_Medical3})
+ADD_EXECUTABLE(wxVTKNotebook ${GUI_EXECUTABLE} ${SRCS_VTKNotebook})
 
   INSTALL(TARGETS
         wxSplitSample wxSample wxImagePlaneWidget wxImageViewer wxMedical3
