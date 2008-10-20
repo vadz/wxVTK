@@ -16,6 +16,10 @@ endif(COMMAND cmake_policy)
 FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
+IF(NOT VTK_USE_HYBRID)
+  MESSAGE(FATAL_ERROR "You need to turn VTK_USE_HYBRID ON to vtkImagePlaneWidget.h")
+ENDIF(NOT VTK_USE_HYBRID)
+
 #-----------------------------------------------------------------------------
 SET (EXECUTABLE_OUTPUT_PATH ${wxVTKSample_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
 SET (LIBRARY_OUTPUT_PATH ${wxVTKSample_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
