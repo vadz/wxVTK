@@ -12,7 +12,7 @@
 
 
 enum {
-  GridSize = 20
+  GridSize = 15
 };
 
 class MyFrame: public wxFrame {
