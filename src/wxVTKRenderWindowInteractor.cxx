@@ -390,7 +390,10 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
   vtkCarbonRenderWindow* rwin = vtkCarbonRenderWindow::SafeDownCast(RenderWindow);
   if( rwin )
   {
+#if VTK_MAJOR_VERSION > 4 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 4)
+    // Must be somewhere after VTK 4.4
     rwin->UpdateGLRegion();
+#endif
   }
 #endif
 #endif
