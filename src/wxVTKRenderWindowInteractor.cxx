@@ -694,7 +694,7 @@ void wxVTKRenderWindowInteractor::OnButtonUp(wxMouseEvent &event)
 void wxVTKRenderWindowInteractor::OnMouseWheel(wxMouseEvent& event)
 {
 // Mouse wheel was only added after VTK 4.4 (I think...)
-#if VTK_MAJOR_VERSION > 4 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 2)
+#if VTK_MAJOR_VERSION > 4 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 4)
   // new style
   //Set vtk event information ... The numebr of wheel rotations is stored in
   //the x varible.  y varible is zero
