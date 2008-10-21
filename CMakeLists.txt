@@ -17,7 +17,7 @@ FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
 IF(NOT VTK_USE_HYBRID)
-  MESSAGE(FATAL_ERROR "You need to turn VTK_USE_HYBRID ON to vtkImagePlaneWidget.h")
+  MESSAGE(FATAL_ERROR "You need to turn VTK_USE_HYBRID:ON (for vtkImagePlaneWidget.h)")
 ENDIF(NOT VTK_USE_HYBRID)
 
 #-----------------------------------------------------------------------------
