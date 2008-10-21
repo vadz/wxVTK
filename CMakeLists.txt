@@ -100,13 +100,11 @@ SET(SRCS_Medical3
   src/wxVTKRenderWindowInteractor.cxx
   )
 
-IF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
 # need vtkrenderwindow::finalize which has been added ~VTK 5.0
 SET(SRCS_VTKNotebook
   Sample/wxVTKNotebook.cxx
   src/wxVTKRenderWindowInteractor.cxx
   )
-ENDIF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
 
 IF(NOT VTK_USE_RENDERING)
   MESSAGE(FATAL_ERROR "Cannot build wxVTK without vtkRendering (vtkWidgets)")
@@ -138,7 +136,9 @@ ADD_EXECUTABLE(wxSplitSample ${GUI_EXECUTABLE} ${SRCS_SplitSample})
 ADD_EXECUTABLE(wxImagePlaneWidget ${GUI_EXECUTABLE} ${SRCS_ImagePlaneWidget})
 ADD_EXECUTABLE(wxImageViewer ${GUI_EXECUTABLE} ${SRCS_ImageViewer})
 ADD_EXECUTABLE(wxMedical3 ${GUI_EXECUTABLE} ${SRCS_Medical3})
+IF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
 ADD_EXECUTABLE(wxVTKNotebook ${GUI_EXECUTABLE} ${SRCS_VTKNotebook})
+ENDIF( "${VTK_MAJOR_VERSION}" STREQUAL "5")
 
   INSTALL(TARGETS
         wxSplitSample wxSample wxImagePlaneWidget wxImageViewer wxMedical3
