@@ -29,6 +29,7 @@
 #include "vtkImageViewer2.h"
 #include "vtkImageData.h"
 #include "vtkTesting.h"
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
 

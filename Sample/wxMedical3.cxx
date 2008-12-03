@@ -38,6 +38,7 @@
 #include "vtkImageMapToColors.h"
 #include "vtkImageActor.h"
 #include "vtkTesting.h"
+#include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
 // the application icon
