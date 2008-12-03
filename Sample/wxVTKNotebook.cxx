@@ -212,7 +212,6 @@ void MyFrame::FillVTK(wxPanel *notebook_1_pane_1, wxGridSizer *sizer)
     ren->AddActor(sphereActor);
     wxPanel *self = notebook_1_pane_1;
     wxVTKRenderWindowInteractor *renWin = new wxVTKRenderWindowInteractor(self,-1); //, size=(10,10));
-    renWin->GetRenderWindow()->SetDisplayId( wxGetDisplay() );
     //self._wlist.append( renWin );
     renWin->GetRenderWindow()->AddRenderer(ren);
     sizer->Add( renWin, 1, wxEXPAND);

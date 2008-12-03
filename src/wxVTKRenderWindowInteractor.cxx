@@ -285,10 +285,25 @@ int wxVTKRenderWindowInteractor::CreateTimer(int WXUNUSED(timertype))
 {
   // it's a one shot timer
   if (!timer.Start(10, TRUE))
-    assert(false);
+    return 0;
 
   return 1;
   
+}
+//------------------------------------------------------------------
+int wxVTKRenderWindowInteractor::InternalCreateTimer(int timerId, int timerType,
+                                                     unsigned long duration)
+{
+  if (!timer.Start(duration, timerType == OneShotTimer))
+    return 0;
+    
+  return ID_wxVTKRenderWindowInteractor_TIMER;
+}
+//------------------------------------------------------------------
+int wxVTKRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
+{
+  timer.Stop();
+  return 1;
 }
 //---------------------------------------------------------------------------
 int wxVTKRenderWindowInteractor::DestroyTimer()
@@ -303,11 +318,12 @@ void wxVTKRenderWindowInteractor::OnTimer(wxTimerEvent& WXUNUSED(event))
     return;
     
 #if VTK_MAJOR_VERSION > 4 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
-    // new style
-    InvokeEvent(vtkCommand::TimerEvent, NULL);
+  // new style
+  int timerId = this->GetCurrentTimerId();
+  this->InvokeEvent(vtkCommand::TimerEvent, &timerId);
 #else
-    // old style
-    InteractorStyle->OnTimer();
+  // old style
+  InteractorStyle->OnTimer();
 #endif
 }
 
@@ -374,6 +390,12 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
 #ifdef __WXMSW__
     RenderWindow->SetParentId(reinterpret_cast<void *>(this->GetParent()->GetHWND()));
 #endif //__WXMSW__
+      
+    // This is another hack to prevent the VTK Render Window from closing the display.
+    // If VTK closes the display, ~wxContext chashes while trying to destroy its
+    // glContext (because the display is closed). The Get -> Set makes this VTK
+    // object think someone else is responsible for the display. 
+    this->RenderWindow->SetDisplayId(this->RenderWindow->GetGenericDisplayId());
   }
   // get vtk to render to the wxWindows
   Render();

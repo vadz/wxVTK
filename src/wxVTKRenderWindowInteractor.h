@@ -55,14 +55,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderWindow.h"
 
-// Apparently since wxGTK 2.8.0 one can finally use wxWindow (just as in any
-// other port):
-// MM: tested on 2008/04/08: experienced some heavy flickering with wx-widget 2.6.0
-// using a wxWindow instead of wxGLCanvas fixed the symptoms
-//#if (!wxCHECK_VERSION(2, 6, 0))
-#if (!wxCHECK_VERSION(2, 8, 0))
 #define USE_WXGLCANVAS
-#endif
 
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
 #  if wxUSE_GLCANVAS
@@ -158,6 +151,10 @@ class wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInter
     vtkSetMacro(UseCaptureMouse,int);
     vtkBooleanMacro(UseCaptureMouse,int);
 
+  protected:
+    virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
+    virtual int InternalDestroyTimer(int platformTimerId);
+    
   protected:
     wxTimer timer;
     int ActiveButton;
