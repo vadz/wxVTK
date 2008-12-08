@@ -290,6 +290,7 @@ int wxVTKRenderWindowInteractor::CreateTimer(int WXUNUSED(timertype))
   return 1;
   
 }
+#if VTK_MAJOR_VERSION > 5 || (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION >= 2)
 //------------------------------------------------------------------
 int wxVTKRenderWindowInteractor::InternalCreateTimer(int timerId, int timerType,
                                                      unsigned long duration)
@@ -305,6 +306,7 @@ int wxVTKRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
   timer.Stop();
   return 1;
 }
+#endif
 //---------------------------------------------------------------------------
 int wxVTKRenderWindowInteractor::DestroyTimer()
 {
@@ -319,8 +321,13 @@ void wxVTKRenderWindowInteractor::OnTimer(wxTimerEvent& WXUNUSED(event))
     
 #if VTK_MAJOR_VERSION > 4 || (VTK_MAJOR_VERSION == 4 && VTK_MINOR_VERSION > 0)
   // new style
+#if VTK_MAJOR_VERSION > 5 || (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION >= 2)
+  // pass the right timer id
   int timerId = this->GetCurrentTimerId();
   this->InvokeEvent(vtkCommand::TimerEvent, &timerId);
+#else
+  this->InvokeEvent(vtkCommand::TimerEvent, NULL);
+#endif
 #else
   // old style
   InteractorStyle->OnTimer();
