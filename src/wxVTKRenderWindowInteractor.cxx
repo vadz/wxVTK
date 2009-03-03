@@ -149,7 +149,6 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow(), vtkRend
 #endif //__WXGTK__
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
-      , RenderAllowed(0)
       , Stereo(0)
       , Handle(0)
       , Created(true)
@@ -177,7 +176,6 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
 #endif //__WXGTK__
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
-      , RenderAllowed(0)
       , Stereo(0)
       , Handle(0)
       , Created(true)
@@ -763,8 +761,12 @@ void wxVTKRenderWindowInteractor::OnMouseCaptureLost(wxMouseCaptureLostEvent& ev
 //---------------------------------------------------------------------------
 void wxVTKRenderWindowInteractor::Render()
 {
-  RenderAllowed = 1;
-  if (!RenderWhenDisabled)
+#if wxCHECK_VERSION(2, 8, 0)
+  int renderAllowed = !IsFrozen();
+#else
+  int renderAllowed = 1;
+#endif
+  if (renderAllowed && !RenderWhenDisabled)
     {
     //the user doesn't want us to render when the toplevel frame
     //is disabled - first find the top level parent
@@ -772,12 +774,12 @@ void wxVTKRenderWindowInteractor::Render()
     if (topParent)
       {
       //if it exists, check whether it's enabled
-      //if it's not enabeld, RenderAllowed will be false
-      RenderAllowed = topParent->IsEnabled();
+      //if it's not enabeld, renderAllowed will be false
+      renderAllowed = topParent->IsEnabled();
       }
     }
 
-  if (RenderAllowed)
+  if (renderAllowed)
     {
     if(Handle && (Handle == GetHandleHack()) )
       {

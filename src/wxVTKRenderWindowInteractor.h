@@ -160,7 +160,6 @@ class wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInter
   protected:
     wxTimer timer;
     int ActiveButton;
-    int RenderAllowed;
     long GetHandleHack();
     int Stereo;
     
