@@ -137,13 +137,19 @@ END_EVENT_TABLE()
 vtkCxxRevisionMacro(wxVTKRenderWindowInteractor, "$Revision$")
 vtkInstantiatorNewMacro(wxVTKRenderWindowInteractor)
 
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
+int wxvtk_attributes[]={
+  WX_GL_DOUBLEBUFFER,
+  WX_GL_RGBA,
+  WX_GL_DEPTH_SIZE,
+  16,
+  0
+};
+#endif
+
 //---------------------------------------------------------------------------
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-#if (wxCHECK_VERSION(2, 8, 0))
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas(0, -1, wxDefaultPosition), vtkRenderWindowInteractor()
-#else
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas(), vtkRenderWindowInteractor()
-#endif
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas(0, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("wxVTKRenderWindowInteractor"), wxvtk_attributes), vtkRenderWindowInteractor()
 #else
 wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow(), vtkRenderWindowInteractor()
 #endif //__WXGTK__
@@ -170,7 +176,7 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
                                                          long style,
                                                          const wxString &name)
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-      : wxGLCanvas(parent, id, pos, size, style, name), vtkRenderWindowInteractor()
+      : wxGLCanvas(parent, id, pos, size, style, name, wxvtk_attributes), vtkRenderWindowInteractor()
 #else
       : wxWindow(parent, id, pos, size, style, name), vtkRenderWindowInteractor()
 #endif //__WXGTK__
