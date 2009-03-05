@@ -138,7 +138,7 @@ vtkCxxRevisionMacro(wxVTKRenderWindowInteractor, "$Revision$")
 vtkInstantiatorNewMacro(wxVTKRenderWindowInteractor)
 
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-int wxvtk_attributes[]={
+static int wxvtk_attributes[]={
   WX_GL_DOUBLEBUFFER,
   WX_GL_RGBA,
   WX_GL_DEPTH_SIZE,
