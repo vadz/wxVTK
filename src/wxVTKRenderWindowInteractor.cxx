@@ -281,6 +281,9 @@ void wxVTKRenderWindowInteractor::UpdateSize(int x, int y)
       Size[1] = y;
       // and our RenderWindow's size
       RenderWindow->SetSize(x, y);
+#if defined(__WXMSW__)
+      this->Refresh();
+#endif //__WXMSW__
     }
   }
 }
