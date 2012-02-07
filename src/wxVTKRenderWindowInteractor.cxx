@@ -37,6 +37,11 @@
 #define __WXCOCOA__
 #endif
 
+#if defined(__WXMAC__) && wxCHECK_VERSION(2,9,0)
+    // ControlDown has been changed to mean Command key down
+    #define ControlDown RawControlDown
+#endif
+
 #ifdef __WXMAC__
 #ifdef __WXCOCOA__
 #include "vtkCocoaRenderWindow.h"
@@ -67,20 +72,31 @@ wxWindow* wxGetTopLevelParent(wxWindow *win)
 #endif //__WXCOCOA__
 
 #ifdef __WXGTK__
-#    include <gdk/gdkx.h> // GDK_WINDOW_XWINDOW is found here in wxWidgets 2.8.0
-#    include "gdk/gdkprivate.h"
-#if wxCHECK_VERSION(2, 8, 0)
-#ifdef __WXGTK20__
-#include <wx/gtk/win_gtk.h>
-#else
-#include <wx/gtk1/win_gtk.h>
-#endif
-#else
-#include <wx/gtk/win_gtk.h>
-#endif
-#define GetXWindow(wxwin) (wxwin)->m_wxwindow ? \
+ #include <gdk/gdkx.h> // GDK_WINDOW_XWINDOW is found here in wxWidgets 2.8.0
+ #include "gdk/gdkprivate.h"
+ 
+ #if wxCHECK_VERSION(2, 9, 0)
+  // thanks to: http://thomasfischer.biz/?p=382
+  #include <wx/gtk/private/win_gtk.h>
+  #define piz(wxwin) WX_PIZZA((wxwin)->m_wxwindow)
+  #define GetXWindow(wxwin) (wxwin)->m_wxwindow ? \
+        GDK_WINDOW_XWINDOW(((GtkWidget*)piz(wxwin))->window) : \
+        GDK_WINDOW_XWINDOW((wxwin)->m_widget->window)
+ #else
+  #if wxCHECK_VERSION(2, 8, 0)
+   #ifdef __WXGTK20__
+    #include <wx/gtk/win_gtk.h>
+   #else
+    #include <wx/gtk1/win_gtk.h>
+   #endif
+  #else
+   #include <wx/gtk/win_gtk.h>
+  #endif
+ 
+  #define GetXWindow(wxwin) (wxwin)->m_wxwindow ? \
                           GDK_WINDOW_XWINDOW(GTK_PIZZA((wxwin)->m_wxwindow)->bin_window) : \
                           GDK_WINDOW_XWINDOW((wxwin)->m_widget->window)
+ #endif
 #endif
 
 #ifdef __WXX11__
@@ -153,11 +169,19 @@ static int wxvtk_attributes[]={
 #endif
 
 //---------------------------------------------------------------------------
+wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() 
+
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxGLCanvas(0, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("wxVTKRenderWindowInteractor"), wxvtk_attributes), vtkRenderWindowInteractor()
+    #if wxCHECK_VERSION(2, 9, 0) // the order of the parameters to wxGLCanvas::wxGLCanvas has changed
+		: wxGLCanvas(0, -1, wxvtk_attributes, wxDefaultPosition, wxDefaultSize, 0, wxT("wxVTKRenderWindowInteractor")), 
+	#else
+		: wxGLCanvas(0, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("wxVTKRenderWindowInteractor"), wxvtk_attributes), 
+	#endif
 #else
-wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor() : wxWindow(), vtkRenderWindowInteractor()
+		: wxWindow(), 
 #endif //__WXGTK__
+
+	  vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
       , Stereo(0)
@@ -181,10 +205,15 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
                                                          long style,
                                                          const wxString &name)
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-      : wxGLCanvas(parent, id, pos, size, style, name, wxvtk_attributes), vtkRenderWindowInteractor()
+    #if wxCHECK_VERSION(2, 9, 0) // the order of the parameters to wxGLCanvas::wxGLCanvas has changed
+      : wxGLCanvas(parent, id, wxvtk_attributes, pos, size, style, name)
+    #else
+      : wxGLCanvas(parent, id, pos, size, style, name, wxvtk_attributes)
+    #endif
 #else
-      : wxWindow(parent, id, pos, size, style, name), vtkRenderWindowInteractor()
+      : wxWindow(parent, id, pos, size, style, name)
 #endif //__WXGTK__
+	  , vtkRenderWindowInteractor()
       , timer(this, ID_wxVTKRenderWindowInteractor_TIMER)
       , ActiveButton(wxEVT_NULL)
       , Stereo(0)
@@ -361,29 +390,24 @@ long wxVTKRenderWindowInteractor::GetHandleHack()
   long handle_tmp = 0;
 
 // __WXMSW__ is for Win32
-//__WXMAC__ stands for using Carbon C-headers, using either the CarbonLib/CFM or the native Mach-O builds (which then also use the latest features available)
+// __WXMAC__ is for Carbon or Cocoa builds
 // __WXGTK__ is for both gtk 1.2.x and gtk 2.x
 #if defined(__WXMSW__) || defined(__WXMAC__)
     handle_tmp = (long)this->GetHandle();
 #endif //__WXMSW__
 
-//__WXCOCOA__ stands for using the objective-c Cocoa API
-#ifdef __WXCOCOA__
+// using above GetHandle() works fine with wxOSX 2.9.x
+#if defined(__WXCOCOA__) && !wxCHECK_VERSION(2, 9, 0)
    // Here is how to find the NSWindow
    wxTopLevelWindow* toplevel = dynamic_cast<wxTopLevelWindow*>(wxGetTopLevelParent( this ) );
    if (toplevel != NULL )
    {
-    // AKT: use new Cocoa code if wxOSX 2.9.x
-#if wxCHECK_VERSION(2, 9, 0)
-    handle_tmp = (long)toplevel->GetWXWindow();
-#else
-    handle_tmp = (long)toplevel->GetNSWindow();
-#endif
+      handle_tmp = (long)toplevel->GetNSWindow();
    }
    // The NSView will be deducted from 
    // [(NSWindow*)Handle contentView]
    // if only I knew how to write that in c++
-#endif //__WXCOCOA__
+#endif //__WXCOCOA__ && !wxCHECK_VERSION(2, 9, 0)
 
     // Find and return the actual X-Window.
 #if defined(__WXGTK__) || defined(__WXX11__)
@@ -418,7 +442,11 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
     // If VTK closes the display, ~wxContext chashes while trying to destroy its
     // glContext (because the display is closed). The Get -> Set makes this VTK
     // object think someone else is responsible for the display. 
-    this->RenderWindow->SetDisplayId(this->RenderWindow->GetGenericDisplayId());
+    #ifdef __WXCOCOA__
+      // avoid "Method not implemented" messages in Console
+    #else
+      this->RenderWindow->SetDisplayId(this->RenderWindow->GetGenericDisplayId());
+    #endif
   }
   // get vtk to render to the wxWindows
   Render();
@@ -426,11 +454,14 @@ void wxVTKRenderWindowInteractor::OnPaint(wxPaintEvent& WXUNUSED(event))
   // This solves a problem with repainting after a window resize
   // See also: http://sourceforge.net/mailarchive/forum.php?thread_id=31690967&forum_id=41789
 #ifdef __WXCOCOA__
-  vtkCocoaRenderWindow * rwin = vtkCocoaRenderWindow::SafeDownCast(RenderWindow);
-  if( rwin )
-  {
-    rwin->UpdateContext();
-  }
+  #if !wxCHECK_VERSION(2, 9, 0)
+    // this doesn't seem necessary with wxOSX 2.9.x
+    vtkCocoaRenderWindow * rwin = vtkCocoaRenderWindow::SafeDownCast(RenderWindow);
+    if( rwin )
+    {
+      rwin->UpdateContext();
+    }
+  #endif
 #else
   vtkCarbonRenderWindow* rwin = vtkCarbonRenderWindow::SafeDownCast(RenderWindow);
   if( rwin )
