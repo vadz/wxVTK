@@ -195,6 +195,9 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor()
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass("wxVTKRenderWindowInteractor");
 #endif
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
+  this->context = new wxGLContext(this);
+#endif
   this->RenderWindow = NULL;
   this->SetRenderWindow(vtkRenderWindow::New());
   this->RenderWindow->Delete();
@@ -227,6 +230,9 @@ wxVTKRenderWindowInteractor::wxVTKRenderWindowInteractor(wxWindow *parent,
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructClass("wxVTKRenderWindowInteractor");
 #endif
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
+  this->context = new wxGLContext(this);
+#endif
   this->RenderWindow = NULL;
   this->SetRenderWindow(vtkRenderWindow::New());
   this->RenderWindow->Delete();
@@ -241,6 +247,9 @@ wxVTKRenderWindowInteractor::~wxVTKRenderWindowInteractor()
 {
   SetRenderWindow(NULL);
   SetInteractorStyle(NULL);
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
+  delete this->context;
+#endif
 }
 //---------------------------------------------------------------------------
 wxVTKRenderWindowInteractor * wxVTKRenderWindowInteractor::New()
@@ -273,7 +282,7 @@ void wxVTKRenderWindowInteractor::Enable()
   // that's it
   Enabled = 1;
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
-  SetCurrent();
+  wxGLCanvas::SetCurrent(*this->context);
 #endif
   Modified();
 }
@@ -832,6 +841,9 @@ void wxVTKRenderWindowInteractor::Render()
 
   if (renderAllowed)
     {
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
+    wxGLCanvas::SetCurrent(*(this->context));
+#endif
     if(Handle && (Handle == GetHandleHack()) )
       {
       RenderWindow->Render();

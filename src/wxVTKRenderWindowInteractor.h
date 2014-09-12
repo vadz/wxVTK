@@ -158,6 +158,9 @@ class wxVTKRenderWindowInteractor : public wxWindow, public vtkRenderWindowInter
 #endif
 
   protected:
+#if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
+    wxGLContext *context;
+#endif
     wxTimer timer;
     int ActiveButton;
     long GetHandleHack();
