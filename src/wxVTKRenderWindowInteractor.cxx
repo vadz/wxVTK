@@ -161,7 +161,9 @@ BEGIN_EVENT_TABLE(wxVTKRenderWindowInteractor, wxWindow)
   EVT_SIZE        (wxVTKRenderWindowInteractor::OnSize)
 END_EVENT_TABLE()
 
+#if VTK_MAJOR_VERSION < 6
 vtkCxxRevisionMacro(wxVTKRenderWindowInteractor, "$Revision$")
+#endif
 vtkInstantiatorNewMacro(wxVTKRenderWindowInteractor)
 
 #if defined(__WXGTK__) && defined(USE_WXGLCANVAS)
